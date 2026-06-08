@@ -159,3 +159,64 @@ Negative / trade-offs:
 
 - Keep MVP substitution logic slot-based.
 - Do not introduce a broad food option database until there is a real need.
+
+---
+
+## ADR-005: Scaffold as npm monorepo with Tailwind, Firebase and UI from the start
+
+Date: 2026-06-08
+Status: Accepted
+
+### Context
+
+Before scaffolding the actual application, the open implementation decisions were repository layout, package manager, styling approach, Firebase timing and whether to establish UI immediately.
+
+### Decision
+
+PlanPal should be scaffolded as a monorepo using npm workspaces.
+
+The first app should live under:
+
+```txt
+apps/web
+```
+
+Shared code should live under:
+
+```txt
+packages/shared
+```
+
+The app should use Tailwind from the start.
+
+Firebase should be configured from the start.
+
+The first UI shell and visual baseline should be created immediately rather than postponed.
+
+### Reasoning
+
+A monorepo gives the project room to grow without needing a later restructuring. npm keeps tooling familiar and avoids adding package-manager complexity. Tailwind from the start prevents early UI from drifting. Firebase from the start forces auth and data assumptions to be designed honestly rather than bolted on later. Creating the first UI baseline immediately lets `docs/UI_REGISTRY.md` become useful early.
+
+### Consequences
+
+Positive:
+
+- Clear structure for web app and shared types.
+- Early alignment between data model, Firebase and UI.
+- UI consistency can be established from the first screens.
+- Future packages can be added without restructuring the repository.
+
+Negative / trade-offs:
+
+- Initial scaffold is slightly more complex than a single-app setup.
+- Firebase configuration must be handled carefully to avoid exposing secrets.
+- Tailwind and UI baseline decisions must be kept consistent through imprint mode.
+
+### Implications for future work
+
+- Scaffold root `package.json` with npm workspaces.
+- Create `apps/web` as the Next.js TypeScript PWA.
+- Create `packages/shared` for shared domain types.
+- Install and configure Tailwind during the initial scaffold.
+- Add Firebase client/server structure during the initial scaffold.
+- Establish the first UI baseline and update `docs/UI_REGISTRY.md` after UI shell creation.
