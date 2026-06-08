@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 0.2
-Status: Reference material added, baseline pending
+Version: 0.3
+Status: Reference-derived baseline established
 
 ## Purpose
 
@@ -25,59 +25,135 @@ These screenshots are design input for the first PlanPal UI shell.
 
 They are not runtime app assets unless explicitly moved into the app later.
 
-When creating the first UI baseline, inspect the screenshots and extract reusable patterns such as:
+The references show a clean healthcare SaaS/mobile style:
 
-- overall visual tone
-- background treatment
-- card/panel style
-- spacing rhythm
-- typography feel
-- button treatment
-- navigation layout
-- colour roles
-- border/radius/shadow choices
+- very light page backgrounds
+- white rounded cards
+- soft blue primary accents
+- dark navy/black typography
+- pill-shaped navigation and chips
+- large border radius
+- generous spacing
+- minimal shadows
+- calm, clinical, friendly interface language
 
-Do not copy the screenshots blindly. Use them to derive a coherent PlanPal design language.
+PlanPal should borrow the visual system, not the medical content.
 
----
-
-## Current Status
-
-No UI baseline has been established yet.
-
-Before building the first real UI components, define or imprint the initial baseline using the screenshots in `ui-reference/`.
+Do not copy doctors, scans, appointments, hospital-specific labels or medical dashboard content. Translate the style into a nutrition-plan companion.
 
 ---
 
-## Baseline
+## Design Direction
 
-Pending.
+PlanPal should feel like:
 
-Expected future baseline properties:
+```txt
+calm clinical SaaS + friendly nutrition companion
+```
+
+Avoid:
+
+- playful gamified diet-app clutter
+- harsh medical emergency aesthetics
+- heavy dashboards too early
+- dense tables on mobile
+- dark UI for the MVP
+
+Prefer:
+
+- soft surfaces
+- clear hierarchy
+- rounded cards
+- reassuring blue accents
+- mobile-first structure
+- spacious layouts
+- simple plan cards and meal sections
+
+---
+
+## Baseline — Established From UI References
 
 | Property | Correct pattern |
 | --- | --- |
-| Page background | Pending |
-| Card background | Pending |
-| Card border | Pending |
-| Card radius | Pending |
-| Primary button | Pending |
-| Secondary button | Pending |
-| Text primary | Pending |
-| Text secondary | Pending |
-| Text muted | Pending |
-| Input background | Pending |
-| Input border | Pending |
-| Focus state | Pending |
+| Page background | Very light cool grey / blue-tinted surface, e.g. `bg-slate-50`, `bg-blue-50/40`, or `#F5F7FB` |
+| App shell background | Soft off-white container with subtle contrast against page background |
+| Card background | White or near-white, e.g. `bg-white` / `bg-white/90` |
+| Card border | Very subtle border, e.g. `border border-slate-100` or `border-white/70` |
+| Card radius | Large radius, usually `rounded-3xl`; smaller cards may use `rounded-2xl` |
+| Card shadow | Soft and restrained, e.g. `shadow-sm`, `shadow-md`, or custom low-opacity blue/grey shadow |
+| Primary accent | Clear healthcare blue, e.g. `blue-500` / `blue-600`; use for primary actions, selected chips and active states |
+| Secondary accent | Very pale blue/lavender surfaces for selected backgrounds and panels |
+| Text primary | Deep navy/near-black, e.g. `text-slate-950` or `text-[#111827]` |
+| Text secondary | Muted slate/grey, e.g. `text-slate-500` or `text-slate-600` |
+| Text muted | Soft grey, e.g. `text-slate-400` |
+| Heading style | Rounded, modern sans-serif; large headings should feel soft but confident |
+| Body text | Clear sans-serif, medium size, high readability, avoid tiny grey text for important plan details |
+| Primary button | Pill button, blue background, white text, rounded-full or rounded-2xl |
+| Secondary button | White or pale surface, subtle border/shadow, dark text |
+| Icon button | Circular white button with subtle shadow/border |
+| Input background | White or very pale blue-grey, rounded-full for search/input bars |
+| Input border | Minimal or none; rely on soft surface contrast |
+| Focus state | Blue ring, visible but soft, e.g. `focus:ring-2 focus:ring-blue-500/30` |
+| Navigation | Pills/chips rather than hard rectangular tabs |
+| Mobile cards | Stacked rounded cards with generous vertical spacing |
+| Desktop dashboard | Card grid layout with strong whitespace and clear grouped sections |
+
+---
+
+## Layout Principles
+
+### Mobile
+
+The second reference is the strongest guide for PlanPal mobile.
+
+Use:
+
+- top greeting/header area
+- search or quick action pill when relevant
+- large hero/action card
+- vertical sections with rounded cards
+- horizontal chips for meal categories or days
+- bottom spacing suitable for PWA/mobile browser use
+
+### Desktop
+
+The first reference is the strongest guide for PlanPal professional dashboard.
+
+Use:
+
+- wide soft app container
+- horizontal navigation pills
+- card-based dashboard grid
+- right-side or secondary panels only when useful
+- clear separation between plan editor, client summary and recent questions
+
+---
+
+## PlanPal-Specific Translation
+
+Map medical UI concepts into PlanPal concepts:
+
+| Reference concept | PlanPal equivalent |
+| --- | --- |
+| Doctor cards | Client cards or meal-plan cards |
+| Appointment cards | Scheduled meals or check-ins |
+| Lab result cards | Plan adherence summaries or nutrition plan sections |
+| Category pills | Meals, days, plan sections, food slots |
+| Search doctor | Search client, meal, food option or plan |
+| Book appointment button | Create plan, add meal, ask assistant, generate shopping list |
 
 ---
 
 ## Component Patterns
 
-No component patterns recorded yet.
+No implemented component patterns recorded yet.
+
+After the first UI shell is built, run imprint mode and update this section with actual classes from the app.
 
 ---
 
 ## Rule
 
 When UI changes, run imprint mode and update this file.
+
+The screenshots define the visual direction, but implemented components define the reusable pattern library.
