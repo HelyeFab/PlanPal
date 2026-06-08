@@ -220,3 +220,44 @@ Negative / trade-offs:
 - Install and configure Tailwind during the initial scaffold.
 - Add Firebase client/server structure during the initial scaffold.
 - Establish the first UI baseline and update `docs/UI_REGISTRY.md` after UI shell creation.
+
+---
+
+## ADR-006: Use soft clinical SaaS visual direction for the first UI baseline
+
+Date: 2026-06-08
+Status: Accepted
+
+### Context
+
+Two UI reference screenshots were added under `ui-reference/` and shared for visual analysis. They show a modern healthcare SaaS style with soft cards, bright blue accents, rounded surfaces, spacious mobile layouts and clean dashboard composition.
+
+### Decision
+
+PlanPal should use a soft clinical SaaS visual direction for the first UI shell.
+
+The design should borrow the visual language from the references, not the medical content.
+
+### Reasoning
+
+The references fit PlanPal's product positioning: calm, professional, friendly and trustworthy. This avoids the cluttered, gamified feel common in diet apps while still feeling approachable on mobile.
+
+### Consequences
+
+Positive:
+
+- Clear visual direction before scaffolding UI.
+- Strong fit for professional dashboard and client PWA.
+- Good foundation for a polished MVP.
+
+Negative / trade-offs:
+
+- The app must avoid looking like a hospital or emergency medical app.
+- UI should not copy doctor/scan/appointment content directly.
+
+### Implications for future work
+
+- Use `docs/UI_REGISTRY.md` as the baseline for Tailwind styling.
+- Use light backgrounds, rounded white cards, blue accents and pill navigation.
+- Translate reference concepts into PlanPal concepts such as clients, meal plans, meals, food slots, questions and shopping lists.
+- Run imprint after the first UI shell is built.
