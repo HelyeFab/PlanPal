@@ -85,7 +85,9 @@ export function AppShell({
             </nav>
           ) : null}
 
-          <div className="ml-auto flex items-center gap-2 md:ml-0">
+          <div
+            className={`ml-auto flex items-center gap-2 ${isHome ? "md:ml-0" : ""}`}
+          >
             {isHome ? (
               <>
                 {/* On home, the switcher sits in the mobile nav row below to keep
