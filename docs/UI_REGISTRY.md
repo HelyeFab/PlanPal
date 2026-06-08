@@ -1,15 +1,43 @@
 # PlanPal UI Registry
 
-Version: 0.1
-Status: Empty baseline
+Version: 0.2
+Status: Reference material added, baseline pending
 
 ## Purpose
 
 This file stores reusable UI visual patterns for PlanPal.
 
-It is updated by the `.agent/imprint` skill after UI components are built or audited.
+It is updated by the `.agent/skills/imprint` skill after UI components are built or audited.
 
 The goal is to prevent UI drift across sessions.
+
+---
+
+## UI Reference Source
+
+Initial visual reference screenshots are stored in:
+
+```txt
+ui-reference/
+```
+
+These screenshots are design input for the first PlanPal UI shell.
+
+They are not runtime app assets unless explicitly moved into the app later.
+
+When creating the first UI baseline, inspect the screenshots and extract reusable patterns such as:
+
+- overall visual tone
+- background treatment
+- card/panel style
+- spacing rhythm
+- typography feel
+- button treatment
+- navigation layout
+- colour roles
+- border/radius/shadow choices
+
+Do not copy the screenshots blindly. Use them to derive a coherent PlanPal design language.
 
 ---
 
@@ -17,7 +45,7 @@ The goal is to prevent UI drift across sessions.
 
 No UI baseline has been established yet.
 
-Before building the first real UI components, define or imprint the initial baseline.
+Before building the first real UI components, define or imprint the initial baseline using the screenshots in `ui-reference/`.
 
 ---
 
