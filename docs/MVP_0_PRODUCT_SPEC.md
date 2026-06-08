@@ -16,6 +16,18 @@ A nutritionist is willing to test the platform with 3 real patients.
 - Nutritionist
 - Patient
 
+## Audience and Languages
+
+PlanPal targets both English-speaking and Italian-speaking audiences. The
+Italian market is a core target from the start, not a later addition.
+
+The app is bilingual from the first scaffold (ADR-008):
+
+- `en` — English
+- `it` — Italian (default UI locale)
+
+Plan content, UI copy and assistant replies are all locale-aware.
+
 ## Core Features
 
 1. Create patient

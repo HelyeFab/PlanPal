@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "today": "Oggi",
+    "plan": "Piano",
+    "assistant": "Assistente",
+    "shopping": "Spesa",
+    "ariaPrimary": "Navigazione principale"
+  },
+  "common": {
+    "askPlanPal": "Chiedi a PlanPal",
+    "seeAll": "Vedi tutti"
+  },
+  "language": {
+    "label": "Lingua",
+    "en": "EN",
+    "it": "IT"
+  },
+  "footer": {
+    "disclaimer": "PlanPal supporta il piano del tuo professionista — non lo sostituisce mai."
+  },
+  "hero": {
+    "greeting": "Ciao {name} 👋",
+    "greetingGeneric": "Benvenuto/a 👋",
+    "title": "Segui il tuo piano alimentare con meno stress",
+    "subtitle": "Sostituzioni approvate, idee per i pasti e liste della spesa — tutto basato sul piano creato dal tuo professionista.",
+    "primaryCta": "Chiedi a PlanPal",
+    "secondaryCta": "Guarda i pasti di oggi"
+  },
+  "today": {
+    "heading": "Pasti di oggi"
+  },
+  "meals": {
+    "breakfast": { "name": "Colazione", "summary": "Yogurt greco · avena · frutti di bosco" },
+    "lunch": { "name": "Pranzo", "summary": "Pollo o tofu · quinoa · insalata" },
+    "snack": { "name": "Spuntino", "summary": "Frutta · una manciata di frutta secca" },
+    "dinner": { "name": "Cena", "summary": "Pesce bianco · verdure al forno" }
+  },
+  "plan": {
+    "label": "Piano attivo",
+    "demoTitle": "Piano alimentare primavera",
+    "demoNotes": "Più proteine a colazione, sere più leggere.",
+    "meals": "Pasti",
+    "language": "Lingua",
+    "viewFull": "Vedi il piano completo →",
+    "status": {
+      "draft": "Bozza",
+      "active": "Attivo",
+      "archived": "Archiviato"
+    }
+  },
+  "assistant": {
+    "heading": "Chiedi a PlanPal",
+    "subtitle": "Le risposte si basano sul tuo piano attivo — non vengono inventate.",
+    "chips": [
+      "Posso sostituire questo alimento?",
+      "Cosa posso cucinare stasera?",
+      "Consigli per mangiare fuori"
+    ],
+    "placeholder": "Fai una domanda sul tuo piano…",
+    "send": "Chiedi",
+    "previewNote": "Solo anteprima — l'assistente non è ancora attivo."
+  },
+  "shopping": {
+    "heading": "Lista della spesa",
+    "subtitle": "Creata dai tuoi pasti e dalle opzioni predefinite della settimana.",
+    "items": ["Yogurt greco", "Fiocchi d'avena", "Frutti di bosco misti", "Pesce bianco"],
+    "generate": "Genera la lista completa →"
+  },
+  "professional": {
+    "heading": "Area professionista",
+    "badge": "Anteprima dashboard",
+    "clientQuestions": {
+      "title": "Domande dei clienti",
+      "subtitle": "Scopri cosa chiedono più spesso i clienti — e migliora i piani futuri."
+    },
+    "activeClients": {
+      "title": "Clienti attivi",
+      "subtitle": "Persone che stanno seguendo uno dei tuoi piani.",
+      "detail": "su 3 clienti di prova"
+    },
+    "planEditor": {
+      "title": "Editor dei piani",
+      "subtitle": "Crea piani strutturati: pasti → spazi alimento → opzioni approvate.",
+      "comingNext": "In arrivo"
+    }
+  },
+  "questions": {
+    "q1": "Posso sostituire gli albumi a colazione?",
+    "q2": "Cosa posso ordinare se stasera mangio fuori?",
+    "q3": "Cosa devo comprare per i pasti di domani?"
+  },
+  "categories": {
+    "substitution": "Sostituzione",
+    "recipe": "Ricetta",
+    "shopping_list": "Spesa",
+    "eating_out": "Fuori casa",
+    "missed_meal": "Pasto saltato",
+    "general": "Generale"
+  }
+}

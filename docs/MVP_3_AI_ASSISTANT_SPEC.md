@@ -242,7 +242,13 @@ Do not pretend uncertainty is a valid substitution.
 
 ## Language Behaviour
 
-The assistant should default to the plan language.
+The app supports English and Italian.
+
+The active locale should be passed to assistant-facing code when relevant.
+
+The assistant should reply in the active app locale unless the user explicitly writes in another language or the plan language requires otherwise.
+
+The assistant should default to the plan language when no active locale is supplied.
 
 If the client writes in a different language, the assistant may reply in that language if the answer remains grounded in the same plan context.
 
@@ -252,6 +258,10 @@ For MVP, supported language values are:
 en
 it
 ```
+
+These values are the same as the app's `SupportedLocale` (`@planpal/shared`),
+so the UI locale, the plan `language`, and the assistant language all share one
+type. `AssistantPlanContext.plan.language` carries the language for a request.
 
 ---
 

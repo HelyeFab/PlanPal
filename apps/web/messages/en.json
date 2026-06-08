@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "today": "Today",
+    "plan": "Plan",
+    "assistant": "Assistant",
+    "shopping": "Shopping",
+    "ariaPrimary": "Primary navigation"
+  },
+  "common": {
+    "askPlanPal": "Ask PlanPal",
+    "seeAll": "See all"
+  },
+  "language": {
+    "label": "Language",
+    "en": "EN",
+    "it": "IT"
+  },
+  "footer": {
+    "disclaimer": "PlanPal supports your professional plan — it never replaces your nutritionist."
+  },
+  "hero": {
+    "greeting": "Hi {name} 👋",
+    "greetingGeneric": "Welcome 👋",
+    "title": "Follow your nutrition plan with less stress",
+    "subtitle": "Approved swaps, meal ideas and shopping lists — all grounded in the plan your professional created for you.",
+    "primaryCta": "Ask PlanPal",
+    "secondaryCta": "View today's meals"
+  },
+  "today": {
+    "heading": "Today's meals"
+  },
+  "meals": {
+    "breakfast": { "name": "Breakfast", "summary": "Greek yogurt · oats · berries" },
+    "lunch": { "name": "Lunch", "summary": "Chicken or tofu · quinoa · salad" },
+    "snack": { "name": "Snack", "summary": "Fruit · handful of nuts" },
+    "dinner": { "name": "Dinner", "summary": "White fish · roasted veg" }
+  },
+  "plan": {
+    "label": "Active plan",
+    "demoTitle": "Spring Balance Plan",
+    "demoNotes": "Higher protein at breakfast, lighter evenings.",
+    "meals": "Meals",
+    "language": "Language",
+    "viewFull": "View full plan →",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "archived": "Archived"
+    }
+  },
+  "assistant": {
+    "heading": "Ask PlanPal",
+    "subtitle": "Questions are answered from your active plan — never invented.",
+    "chips": [
+      "Can I swap this food?",
+      "What can I cook tonight?",
+      "Eating out tips"
+    ],
+    "placeholder": "Ask about your plan…",
+    "send": "Ask",
+    "previewNote": "Preview only — the assistant is not wired up yet."
+  },
+  "shopping": {
+    "heading": "Shopping list",
+    "subtitle": "Built from your meals and default options for the week.",
+    "items": ["Greek yogurt", "Rolled oats", "Mixed berries", "White fish"],
+    "generate": "Generate full list →"
+  },
+  "professional": {
+    "heading": "For professionals",
+    "badge": "Dashboard preview",
+    "clientQuestions": {
+      "title": "Client questions",
+      "subtitle": "See what clients ask most — and improve future plans."
+    },
+    "activeClients": {
+      "title": "Active clients",
+      "subtitle": "People currently following one of your plans.",
+      "detail": "of 3 trial clients"
+    },
+    "planEditor": {
+      "title": "Plan editor",
+      "subtitle": "Build structured plans: meals → food slots → approved options.",
+      "comingNext": "Coming next"
+    }
+  },
+  "questions": {
+    "q1": "Can I replace the egg whites at breakfast?",
+    "q2": "What can I order if I'm eating out tonight?",
+    "q3": "What should I buy for tomorrow's meals?"
+  },
+  "categories": {
+    "substitution": "Swap",
+    "recipe": "Recipe",
+    "shopping_list": "Shopping",
+    "eating_out": "Eating out",
+    "missed_meal": "Missed meal",
+    "general": "General"
+  }
+}

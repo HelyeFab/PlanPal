@@ -142,6 +142,44 @@ Avoid hardcoded visual values when existing tokens or established classes exist.
 
 ---
 
+## Localisation
+
+The app supports English and Italian from the start.
+
+Supported locales:
+
+- `en`
+- `it`
+
+Do not hardcode user-facing strings in components. Use the project i18n message system.
+
+Locale-aware UI text should live in message files such as:
+
+- `apps/web/messages/en.json`
+- `apps/web/messages/it.json`
+
+Shared types should use:
+
+```ts
+type SupportedLocale = "en" | "it";
+```
+
+### Conventions in this project
+
+- The i18n library is `next-intl` with locale-prefixed routing (`/it`, `/en`);
+  the default locale is `it`, fallback `en` (ADR-008).
+- `SupportedLocale`, `SUPPORTED_LOCALES` and `DEFAULT_LOCALE` are exported from
+  `@planpal/shared` — treat them as the single source of truth for locales.
+- In server components use `getTranslations`; in sync server/client components
+  use `useTranslations`. Read text by key, e.g. `t("hero.title")`.
+- Use the locale-aware `Link` / `useRouter` from `apps/web/i18n/navigation.ts`
+  for internal navigation so the active locale prefix is preserved. Plain `<a>`
+  is fine for in-page hash anchors.
+- Mock/demo data should carry stable message keys, not display copy.
+- Italian copy must read naturally — not a word-for-word translation of English.
+
+---
+
 ## Error Handling
 
 For user-facing flows, handle:

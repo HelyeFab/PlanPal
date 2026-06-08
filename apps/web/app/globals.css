@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/*
+ * PlanPal design tokens (Tailwind CSS v4, CSS-first config).
+ * Visual direction: calm clinical SaaS + friendly nutrition companion.
+ * These tokens generate utilities like `bg-canvas`, `text-ink`, `text-brand`,
+ * `rounded-card`. See docs/UI_REGISTRY.md.
+ */
+@theme {
+  /* Surfaces */
+  --color-canvas: #eef2fb; /* very light cool blue-grey page background */
+  --color-surface: #ffffff; /* white cards */
+  --color-surface-muted: #f6f8fd; /* subtle inset / search fields */
+
+  /* Text */
+  --color-ink: #14233d; /* clean dark navy primary text */
+  --color-muted: #5b6b86; /* muted grey-blue secondary text */
+  --color-faint: #93a1ba; /* faintest captions */
+
+  /* Brand */
+  --color-brand: #2f6bff; /* blue primary accent */
+  --color-brand-strong: #1f4fd1; /* hover / pressed */
+  --color-brand-soft: #e7eeff; /* tinted chips / soft fills */
+
+  /* Accents for category dots / pills */
+  --color-mint: #2bb673;
+  --color-amber: #f5a524;
+
+  /* Lines */
+  --color-line: #e4eafa; /* hairline card borders */
+
+  /* Radii */
+  --radius-card: 1.5rem; /* rounded-3xl-ish card radius */
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 18px 40px -24px rgb(20 35 61 / 0.28);
+  --shadow-soft: 0 8px 24px -16px rgb(20 35 61 / 0.22);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* Offset in-page anchor jumps so targets clear the sticky header.
+       Covers the taller two-row mobile header (~7rem); desktop header is shorter. */
+    scroll-padding-top: 7rem;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Visible, consistent focus state for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+}

@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 0.3
-Status: Reference-derived baseline established
+Version: 0.4
+Status: Reference baseline + implemented patterns (mobile responsiveness audited)
 
 ## Purpose
 
@@ -10,6 +10,13 @@ This file stores reusable UI visual patterns for PlanPal.
 It is updated by the `.agent/skills/imprint` skill after UI components are built or audited.
 
 The goal is to prevent UI drift across sessions.
+
+This document has two layers:
+
+1. **Design intent** — the visual direction derived from the `ui-reference/`
+   screenshots (aspirational, not tied to specific classes).
+2. **Implemented patterns** — the actual Tailwind classes and components in
+   `apps/web`. When building new UI, match the *implemented* layer.
 
 ---
 
@@ -71,32 +78,31 @@ Prefer:
 
 ---
 
-## Baseline — Established From UI References
+## Design Intent Baseline — from UI references
 
-| Property | Correct pattern |
+Aspirational patterns derived from the references (general direction; the
+implemented layer below is the source of truth for actual classes).
+
+| Property | Direction |
 | --- | --- |
-| Page background | Very light cool grey / blue-tinted surface, e.g. `bg-slate-50`, `bg-blue-50/40`, or `#F5F7FB` |
-| App shell background | Soft off-white container with subtle contrast against page background |
-| Card background | White or near-white, e.g. `bg-white` / `bg-white/90` |
-| Card border | Very subtle border, e.g. `border border-slate-100` or `border-white/70` |
-| Card radius | Large radius, usually `rounded-3xl`; smaller cards may use `rounded-2xl` |
-| Card shadow | Soft and restrained, e.g. `shadow-sm`, `shadow-md`, or custom low-opacity blue/grey shadow |
-| Primary accent | Clear healthcare blue, e.g. `blue-500` / `blue-600`; use for primary actions, selected chips and active states |
-| Secondary accent | Very pale blue/lavender surfaces for selected backgrounds and panels |
-| Text primary | Deep navy/near-black, e.g. `text-slate-950` or `text-[#111827]` |
-| Text secondary | Muted slate/grey, e.g. `text-slate-500` or `text-slate-600` |
-| Text muted | Soft grey, e.g. `text-slate-400` |
-| Heading style | Rounded, modern sans-serif; large headings should feel soft but confident |
-| Body text | Clear sans-serif, medium size, high readability, avoid tiny grey text for important plan details |
-| Primary button | Pill button, blue background, white text, rounded-full or rounded-2xl |
+| Page background | Very light cool grey / blue-tinted surface |
+| App shell background | Soft off-white container with subtle contrast |
+| Card background | White or near-white |
+| Card border | Very subtle hairline border |
+| Card radius | Large radius, usually `rounded-3xl`; smaller cards `rounded-2xl` |
+| Card shadow | Soft and restrained, low-opacity blue/grey |
+| Primary accent | Clear healthcare blue for primary actions, selected chips, active states |
+| Secondary accent | Very pale blue/lavender surfaces for selected panels |
+| Text primary | Deep navy/near-black |
+| Text secondary | Muted slate/grey |
+| Text muted | Soft grey |
+| Primary button | Pill button, blue background, white text |
 | Secondary button | White or pale surface, subtle border/shadow, dark text |
-| Icon button | Circular white button with subtle shadow/border |
-| Input background | White or very pale blue-grey, rounded-full for search/input bars |
-| Input border | Minimal or none; rely on soft surface contrast |
-| Focus state | Blue ring, visible but soft, e.g. `focus:ring-2 focus:ring-blue-500/30` |
+| Input | White/pale blue-grey, rounded-full for search/input bars |
+| Focus state | Blue ring, visible but soft |
 | Navigation | Pills/chips rather than hard rectangular tabs |
 | Mobile cards | Stacked rounded cards with generous vertical spacing |
-| Desktop dashboard | Card grid layout with strong whitespace and clear grouped sections |
+| Desktop dashboard | Card grid layout with strong whitespace and grouped sections |
 
 ---
 
@@ -144,11 +150,120 @@ Map medical UI concepts into PlanPal concepts:
 
 ---
 
+# Implemented Patterns
+
+Everything below reflects what is actually built in `apps/web`. **Match this
+layer when adding UI.**
+
+## Implementation
+
+Tailwind CSS v4 with CSS-first config. Design tokens live in
+`apps/web/app/globals.css` under `@theme`. There is **no** `tailwind.config.ts`
+(see ADR-007). Tokens generate utilities automatically, e.g. `--color-brand`
+→ `bg-brand` / `text-brand`, `--radius-card` → `rounded-card`.
+
+### Design tokens (`@theme`)
+
+| Token | Value | Generates |
+| --- | --- | --- |
+| `--color-canvas` | `#eef2fb` | `bg-canvas` page background |
+| `--color-surface` | `#ffffff` | `bg-surface` cards |
+| `--color-surface-muted` | `#f6f8fd` | `bg-surface-muted` inputs/insets |
+| `--color-ink` | `#14233d` | `text-ink` primary text |
+| `--color-muted` | `#5b6b86` | `text-muted` secondary text |
+| `--color-faint` | `#93a1ba` | `text-faint` captions |
+| `--color-brand` | `#2f6bff` | `bg-brand` / `text-brand` |
+| `--color-brand-strong` | `#1f4fd1` | hover / pressed |
+| `--color-brand-soft` | `#e7eeff` | `bg-brand-soft` chips |
+| `--color-mint` | `#2bb673` | success / active status |
+| `--color-amber` | `#f5a524` | draft / warning status |
+| `--color-line` | `#e4eafa` | `border-line` hairline borders |
+| `--radius-card` | `1.5rem` | `rounded-card` |
+| `--radius-pill` | `9999px` | `rounded-pill` |
+| `--shadow-card` | soft elevation | `shadow-card` (hero) |
+| `--shadow-soft` | low elevation | `shadow-soft` (cards) |
+
+---
+
+## Implemented Baseline
+
+| Property | Correct pattern |
+| --- | --- |
+| Page background | `bg-canvas` (set on `body` in globals.css) |
+| Card background | `bg-surface` |
+| Card border | `border border-line` |
+| Card radius | `rounded-card` (rows/small cards use `rounded-2xl`) |
+| Card shadow | `shadow-soft` (cards), `shadow-card` (hero) |
+| Card padding | `p-5` (standard), `p-6 sm:p-8` (hero) |
+| Primary button | `ActionPill variant="solid"` → `bg-brand text-white hover:bg-brand-strong rounded-pill` |
+| Secondary button | `ActionPill variant="soft"` → `bg-brand-soft text-brand` |
+| Ghost / nav button | `ActionPill variant="ghost"` → `text-muted hover:bg-white hover:text-ink` |
+| Text primary | `text-ink` |
+| Text secondary | `text-muted` |
+| Text muted | `text-faint` |
+| Input background | `bg-surface-muted` |
+| Input border | `border border-line` |
+| Input shape | `rounded-pill` field wrapper |
+| Focus state | `:focus-visible` → `2px solid var(--color-brand)` (global, in globals.css) |
+| Status: active | `bg-mint/15 text-mint` pill |
+| Status: draft | `bg-amber/15 text-amber` pill |
+| Status: archived | `bg-muted/15 text-muted` pill |
+
+---
+
+## Layout
+
+- Page container: `mx-auto max-w-5xl px-4 sm:px-6`.
+- Mobile-first: single column, `grid gap-5` widening to `sm:grid-cols-2` / `lg:grid-cols-3`.
+- Header: sticky, `bg-canvas/80 backdrop-blur`, `border-b border-line/70`.
+- **Desktop header (md+):** one row — logo · nav pills (`md:flex`) · (language
+  switcher + CTA).
+- **Mobile header (<md):** two rows — row 1 is logo + primary CTA only; row 2 is
+  a horizontally scrollable pill nav (`min-w-0 flex-1 overflow-x-auto`) with the
+  language switcher pinned right (`shrink-0`). The switcher is moved out of row 1
+  on mobile to prevent the top row overflowing narrow phones (~360–375px).
+- **Sticky-header anchor offset:** `html { scroll-padding-top: 7rem }` in
+  globals.css so in-page `#anchor` jumps clear the sticky header (covers the
+  taller two-row mobile header). In-page section ids: `#today`, `#plan`,
+  `#assistant`, `#shopping` sit on the card/section, not on inner links.
+
+---
+
 ## Component Patterns
 
-No implemented component patterns recorded yet.
+Components live in `apps/web/components/`.
 
-After the first UI shell is built, run imprint mode and update this section with actual classes from the app.
+- **AppShell** (`app-shell.tsx`) — sticky header (inline SVG brand mark, nav
+  pills, language switcher, primary CTA), `max-w-5xl` main, footer disclaimer.
+  Owns nav state and the responsive header layout above.
+- **HeroCard** (`hero-card.tsx`) — blue gradient panel
+  (`bg-gradient-to-br from-brand to-brand-strong`), white text, decorative
+  blurred blobs, greeting + promise + action pills.
+- **PlanCard** (`plan-card.tsx`) — active-plan summary with status badge,
+  notes, meal/language stats. Status/language typed with `@planpal/shared`;
+  title/notes passed in already localised.
+- **MealCard** (`meal-card.tsx`) — `<li>` row with accent dot, name, time,
+  slot summary. Used in the "Today's meals" list.
+- **ActionPill** (`action-pill.tsx`) — the shared pill primitive. Renders a
+  semantic `<a>` when `href` is set, otherwise a `<button>`. Variants:
+  `solid` | `soft` | `ghost`, plus `active` and optional `icon`.
+- **LanguageSwitcher** (`language-switcher.tsx`, client) — EN | IT segmented
+  pill: outer `inline-flex rounded-pill border border-line bg-surface-muted p-0.5`
+  wrapping two `<button>`s (`rounded-pill px-2.5 py-1 text-xs font-semibold`);
+  active locale `bg-brand text-white`, inactive `text-muted hover:text-ink`.
+  Uses `aria-pressed` and a `role="group"` labelled by `language.label`. Keeps
+  the current path via the locale-aware router; no persisted preference (MVP).
+
+### Accessibility baseline
+
+- Semantic headings (`h1` in hero, `h2`/`h3` per section), one `h1` per page.
+- Buttons are `<button>`, links are `<a>`; nav uses `aria-current="page"`.
+- Inputs have associated `<label>` (visually hidden via `sr-only` where needed).
+- Global visible `:focus-visible` ring.
+- Decorative SVG/blobs marked `aria-hidden="true"`.
+- All visible copy (and `aria-label`s such as the nav landmark) comes from i18n
+  messages — no hardcoded user-facing strings in components (ADR-008). The only
+  literal text in components is the brand wordmark "PlanPal".
 
 ---
 
@@ -156,4 +271,6 @@ After the first UI shell is built, run imprint mode and update this section with
 
 When UI changes, run imprint mode and update this file.
 
-The screenshots define the visual direction, but implemented components define the reusable pattern library.
+The screenshots define the visual direction, but implemented components define
+the reusable pattern library. Reference screenshots in `ui-reference/` are
+**inspiration only** — never used as in-app image assets.

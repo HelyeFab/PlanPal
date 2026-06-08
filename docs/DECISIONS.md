@@ -261,3 +261,142 @@ Negative / trade-offs:
 - Use light backgrounds, rounded white cards, blue accents and pill navigation.
 - Translate reference concepts into PlanPal concepts such as clients, meal plans, meals, food slots, questions and shopping lists.
 - Run imprint after the first UI shell is built.
+
+---
+
+## ADR-007: Scaffold on current stable tooling (Next.js 16, Tailwind v4), not the originally documented versions
+
+Date: 2026-06-08
+Status: Accepted
+
+### Context
+
+Earlier docs (README, CODING_STANDARDS) named "Next.js 15" and the scaffold
+target structure implied Tailwind v3 conventions (`tailwind.config.ts`,
+`next lint`). The scaffold task explicitly instructed using the best current
+stable tooling and recording any materially different choice here.
+
+At scaffold time the current stable versions were:
+
+```txt
+Next.js        16.2.7  (App Router + Turbopack)
+React          19.2
+Tailwind CSS   4.3     (CSS-first config)
+Firebase       12.14
+firebase-admin 13.10
+Node           24 (engines: >=20.9)
+```
+
+### Decision
+
+Scaffold PlanPal on the current stable tooling above, adopting the newer
+conventions these versions recommend:
+
+- **Tailwind CSS v4 CSS-first config.** Design tokens live in
+  `apps/web/app/globals.css` under `@theme`; PostCSS uses
+  `@tailwindcss/postcss`. There is **no `tailwind.config.ts`**.
+- **ESLint flat config.** Next.js 16 removed the built-in `next lint` command.
+  Linting uses `eslint .` with `eslint.config.mjs` consuming the native flat
+  config exported by `eslint-config-next@16`.
+- **Workspace types via `transpilePackages`.** `apps/web` imports
+  `@planpal/shared` TypeScript source directly; `next.config.ts` lists it under
+  `transpilePackages`.
+
+This supersedes the "Next.js 15" / Tailwind-v3 wording in README and
+CODING_STANDARDS. ADR-002 (PWA-first) and ADR-005 (npm monorepo + Tailwind +
+Firebase + UI from the start) remain unchanged — this ADR only pins versions
+and the config conventions they imply. ADR-006 (visual direction) is independent.
+
+### Reasoning
+
+The task prioritised current stable tooling over the literal versions named in
+prose. Tailwind v4 and Next 16 are stable and change file conventions; adopting
+them now avoids an immediate migration and keeps the scaffold idiomatic.
+
+### Consequences
+
+Positive:
+
+- Idiomatic, current scaffold; no day-one upgrade debt.
+- Faster builds (Turbopack) and simpler styling config (CSS-first tokens).
+
+Negative / trade-offs:
+
+- Contributors expecting `tailwind.config.ts` or `next lint` must learn the v4 /
+  flat-config conventions.
+- Prose docs that still say "Next.js 15" are now historical; this ADR is the
+  authority on versions.
+
+### Implications for future work
+
+- Treat `globals.css` `@theme` as the source of design tokens (see UI_REGISTRY).
+- Use `eslint.config.mjs` (flat) for lint rule changes.
+- A service worker and real PWA icon assets are still TODO — the scaffold is
+  "PWA-ready" via `app/manifest.ts` + viewport theme color only.
+
+---
+
+## ADR-008: Localise the app from the start
+
+Date: 2026-06-08
+Status: Accepted
+
+### Context
+
+PlanPal will target both English-speaking and Italian-speaking users. The app must be suitable for an Italian audience as well as an English one.
+
+### Decision
+
+PlanPal must support localisation from the first scaffold.
+
+The initial supported locales are:
+
+- `en`
+- `it`
+
+User-facing UI strings must not be hardcoded directly in components. They should come from locale message files or the chosen i18n system.
+
+### Reasoning
+
+Localisation affects routing, copy, assistant behaviour, onboarding, nutrition-plan language, SEO and future product positioning. Adding it later would require unnecessary refactoring.
+
+### Consequences
+
+Positive:
+
+- The app is ready for both English and Italian audiences from the beginning.
+- UI copy stays organised.
+- Future onboarding and assistant behaviour can respect language choice.
+- Italian market support is treated as a core product requirement, not an afterthought.
+
+Negative / trade-offs:
+
+- Initial scaffold is slightly more complex.
+- Every UI component must be careful not to hardcode user-facing strings.
+
+### Implications for future work
+
+- Add an i18n/localisation setup during the first app scaffold.
+- Create English and Italian message files.
+- Use locale-aware routes or the current recommended Next.js localisation approach.
+- Include a language switcher in the first UI shell.
+- Store or infer the active locale cleanly.
+- Assistant API design should pass the active locale or plan language where relevant.
+
+### Implementation notes (recorded after scaffolding)
+
+- **Library:** `next-intl@4.13` — App Router compatible, TypeScript-first,
+  works with npm workspaces and static rendering. Chosen as the current best
+  stable Next.js i18n approach; no materially different library was warranted.
+- **Default locale:** `it`, **fallback:** `en` (Italian is a core target).
+- **Routing:** locale-prefixed (`/it`, `/en`); `localePrefix: "always"`, so `/`
+  redirects to `/it`. Locale negotiation runs in `apps/web/proxy.ts` (Next 16
+  renamed the `middleware` convention to `proxy`, see ADR-007).
+- **Source of truth for locales:** `SUPPORTED_LOCALES` / `DEFAULT_LOCALE` /
+  `SupportedLocale` in `@planpal/shared`; `i18n/routing.ts` reads from there, and
+  `PlanLanguage` is aliased to `SupportedLocale` so plan/app/assistant languages
+  cannot drift apart.
+- **Messages:** `apps/web/messages/{en,it}.json`. Components resolve text via
+  `useTranslations` / `getTranslations`; mock data carries only keys, never copy.
+- **Switcher:** `components/language-switcher.tsx` (EN | IT pills), preserves the
+  current path via the locale-aware router. No persisted preference yet (MVP).
