@@ -217,5 +217,29 @@
       "optionName": "Every option needs a food name.",
       "allGood": "Looks good — this plan is complete."
     }
+  },
+  "auth": {
+    "title": "Sign in",
+    "subtitle": "Access your professional area.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@studio.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Your password",
+    "continue": "Continue",
+    "signingIn": "Signing in…",
+    "signOut": "Sign out",
+    "loading": "Checking sign-in…",
+    "mustSignIn": "You must sign in to continue.",
+    "professionalArea": "Professional area",
+    "notConfigured": {
+      "title": "Firebase not configured",
+      "body": "Set the NEXT_PUBLIC_FIREBASE_* variables in apps/web/.env.local to enable sign-in."
+    },
+    "errors": {
+      "invalid": "Incorrect email or password.",
+      "tooMany": "Too many attempts. Please try again later.",
+      "network": "Network error. Check your connection.",
+      "generic": "Could not sign in. Please try again."
+    }
   }
 }

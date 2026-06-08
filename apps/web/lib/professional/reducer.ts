@@ -55,6 +55,7 @@ export function createMeal(): BuilderMeal {
 export type BuilderAction =
   | { type: "hydrate"; state: BuilderState }
   | { type: "reset"; state: BuilderState }
+  | { type: "setNutritionistId"; uid: string }
   | { type: "setClient"; patch: Partial<BuilderState["client"]> }
   | { type: "setPreferredLanguage"; language: SupportedLocale }
   | { type: "setPlan"; patch: Partial<BuilderPlan> }
@@ -104,6 +105,9 @@ export function builderReducer(
     case "hydrate":
     case "reset":
       return action.state;
+
+    case "setNutritionistId":
+      return { ...state, nutritionistId: action.uid };
 
     case "setClient":
       return { ...state, client: { ...state.client, ...action.patch } };

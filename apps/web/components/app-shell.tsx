@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { ActionPill } from "./action-pill";
 import { LanguageSwitcher } from "./language-switcher";
+import { AccountMenu } from "./auth/account-menu";
 import { Link } from "@/i18n/navigation";
 
 type NavKey = "today" | "plan" | "assistant" | "shopping";
@@ -97,7 +98,10 @@ export function AppShell({
                 </ActionPill>
               </>
             ) : (
-              <LanguageSwitcher />
+              <>
+                <LanguageSwitcher />
+                <AccountMenu />
+              </>
             )}
           </div>
         </div>

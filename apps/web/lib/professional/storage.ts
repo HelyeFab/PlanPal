@@ -29,7 +29,11 @@ export function loadBuilderState(): BuilderState | null {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
-    return isBuilderState(parsed) ? parsed : null;
+    if (!isBuilderState(parsed)) return null;
+    // Coerce drafts saved before `nutritionistId` existed; the builder restamps
+    // it from the signed-in UID anyway.
+    const draft = parsed as BuilderState & { nutritionistId?: string };
+    return { ...draft, nutritionistId: draft.nutritionistId ?? "" };
   } catch {
     return null;
   }

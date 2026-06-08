@@ -2,7 +2,54 @@
 
 Last updated: 2026-06-08
 
-## Latest: First product flow (MVP-4) — professional plan builder + client preview
+## Latest: Professional Firebase Auth (MVP-5)
+
+Professional sign-in is implemented (docs/MVP_5_PROFESSIONAL_AUTH.md, ADR-010).
+
+- **Method:** Firebase Auth **email/password only**. No Google, no self-service
+  sign-up (accounts are **provisioned manually in the Firebase Console** for the
+  MVP pilot), no password reset, no Admin SDK, no new secrets.
+- **Route added:** `/[locale]/sign-in` (public, dynamic — reads validated `?from`).
+  `/[locale]/professional` is now **protected** (redirects to sign-in when signed out).
+- **Auth state:** `AuthProvider` (client, `onAuthStateChanged`) wraps the app
+  inside `NextIntlClientProvider`; exposes `{ user, loading, configured }` +
+  `useAuth()` / `useNutritionistId()`.
+- **Protection:** `RequireAuth` is a **client-side UX gate, NOT a server security
+  boundary** (acceptable now — no private server data, builder is localStorage-only).
+  Real boundary (session cookie + Admin verification + Firestore rules) is required
+  before any cloud persistence. See docs/SECURITY_BOUNDARIES.md.
+- **Ownership:** Firebase Auth **UID = nutritionistId**; the builder stamps
+  `user.uid` into `BuilderState.nutritionistId` (replacing the placeholder).
+- **Env:** the existing `NEXT_PUBLIC_FIREBASE_*` (6 vars) only. No bypass flag —
+  missing config shows a localised "Firebase not configured" notice.
+- **Redirect safety:** `from` is validated to internal, locale-stripped,
+  allow-listed paths (`lib/auth/redirect.ts`) — no open redirects.
+
+New files: `components/auth/{auth-provider,require-auth,account-menu}.tsx`,
+`app/[locale]/sign-in/{page,sign-in-form}.tsx`, `lib/auth/{redirect,auth-errors}.ts`.
+Modified: `app/[locale]/layout.tsx` (AuthProvider), `app/[locale]/professional/page.tsx`
+(RequireAuth), `components/app-shell.tsx` (AccountMenu), `components/professional/
+{professional-plan-builder (stamp uid), fields (email/password type)}.tsx`,
+`lib/professional/{types,example-plan,reducer,storage}.ts` (nutritionistId),
+`messages/{en,it}.json` (auth namespace). Docs: ADR-010, SECURITY_BOUNDARIES auth
+section, MVP_5, UI_REGISTRY v0.7.
+
+**Checks:** typecheck ✓ · lint ✓ · build ✓ (`/[locale]/sign-in` dynamic, professional
+still SSG). EN/IT key parity 179=179. Verified the unconfigured-Firebase notice
+renders localised on both locales (no `.env.local` in this env).
+
+**Known limitations:** client-side gate only (UX, not security) until the
+persistence flow; accounts created manually; local dev needs real Firebase config
+(no emulator wired yet); the actual sign-in form/redirect/sign-out require a
+configured project to exercise.
+
+**Next recommended flow:** cloud persistence — session cookie + Firebase Admin
+verification + Firestore rules + map builder draft to `nutritionists/{uid}/...`
+(MVP_2). Needs its own architect blueprint.
+
+---
+
+## First product flow (MVP-4) — professional plan builder + client preview
 
 The first real product loop is implemented (docs/MVP_4_FIRST_PRODUCT_FLOW.md):
 a professional creates a client → structures a plan → adds meals → food slots →

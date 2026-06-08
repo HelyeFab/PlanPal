@@ -454,3 +454,63 @@ Negative / trade-offs:
 - Do not add Firestore writes to the builder until auth ownership exists.
 - Keep builder draft types aligned with `@planpal/shared` so the mapping stays
   trivial. Builder UI-state types belong in the app, not in the shared package.
+
+---
+
+## ADR-010: Professional auth — email/password, client-side gate, UID = nutritionistId
+
+Date: 2026-06-08
+Status: Accepted
+
+### Context
+
+The professional area (`/[locale]/professional`) was freely accessible. We need
+authentication so the app knows the professional and can later own their data,
+but no cloud persistence exists yet (ADR-009) and there is no private
+server-rendered data.
+
+### Decision
+
+- **Method:** Firebase Auth **email/password only**. No Google/OAuth. No
+  self-service sign-up — professional accounts are **provisioned manually in the
+  Firebase Console** for the MVP pilot.
+- **Auth state:** Firebase JS SDK (default local/IndexedDB persistence), surfaced
+  through a client `AuthProvider` (`onAuthStateChanged`) exposing
+  `{ user, loading, configured }`.
+- **Protection:** **client-side gate** (`RequireAuth`) redirecting signed-out
+  users to `/[locale]/sign-in`. This is a **UX gate, not a server security
+  boundary** — acceptable now because nothing private is served or written
+  server-side (builder is localStorage-only). Real enforcement (session cookie +
+  Firebase Admin verification + Firestore rules) is a prerequisite of the
+  persistence flow, documented in `docs/SECURITY_BOUNDARIES.md`.
+- **Ownership:** the Firebase Auth **UID is the canonical `nutritionistId`**. The
+  builder stamps `user.uid` into the local draft (`BuilderState.nutritionistId`),
+  replacing the prior placeholder, so the draft shape already matches the future
+  `nutritionists/{uid}` Firestore root.
+- **No Admin SDK, no service account, no new secrets** this pass (client config
+  uses the public `NEXT_PUBLIC_FIREBASE_*` values only).
+- **No auth-disabled bypass flag** — even a harmless one risks becoming dangerous
+  once Firestore lands. Local dev requires real Firebase client config; if it is
+  missing, the UI shows a localised "Firebase not configured" notice.
+- **`from` redirect** after sign-in is validated to internal, locale-stripped,
+  allow-listed paths only (`sanitizeInternalPath`) to prevent open redirects.
+
+### Reasoning
+
+Email/password is the simplest method to validate one nutritionist. A client gate
+ships protection now without the Admin SDK/cookies, matching "no cloud writes
+yet". UID = nutritionistId keeps ownership unambiguous and future-proof.
+
+### Consequences
+
+Positive: usable protected professional shell; UID available for persistence;
+zero new secrets; clear upgrade path. Negative: protection is client-only until
+the persistence flow; accounts are created manually; local dev needs real config.
+
+### Implications for future work
+
+- The Firestore flow MUST add: a session cookie minted from the ID token, server
+  verification via Firebase Admin (in `proxy.ts` or route handlers), and
+  Firestore rules `request.auth.uid == nutritionistId` under `nutritionists/{uid}`.
+- Self-service sign-up, Google auth, and password reset remain deferred, separate
+  decisions.

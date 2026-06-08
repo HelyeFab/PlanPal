@@ -217,5 +217,29 @@
       "optionName": "Ogni opzione ha bisogno del nome dell'alimento.",
       "allGood": "Tutto a posto — il piano è completo."
     }
+  },
+  "auth": {
+    "title": "Accedi",
+    "subtitle": "Accedi alla tua area professionista.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "tu@studio.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "La tua password",
+    "continue": "Continua",
+    "signingIn": "Accesso in corso…",
+    "signOut": "Esci",
+    "loading": "Verifica dell'accesso…",
+    "mustSignIn": "Devi accedere per continuare.",
+    "professionalArea": "Area professionista",
+    "notConfigured": {
+      "title": "Firebase non configurato",
+      "body": "Imposta le variabili NEXT_PUBLIC_FIREBASE_* in apps/web/.env.local per abilitare l'accesso."
+    },
+    "errors": {
+      "invalid": "Email o password non corretti.",
+      "tooMany": "Troppi tentativi. Riprova più tardi.",
+      "network": "Errore di rete. Controlla la connessione.",
+      "generic": "Impossibile accedere. Riprova."
+    }
   }
 }

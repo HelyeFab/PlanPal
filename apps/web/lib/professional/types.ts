@@ -63,6 +63,13 @@ export type BuilderPlan = {
 
 /** The complete builder working state, persisted to localStorage. */
 export type BuilderState = {
+  /**
+   * Owner of this plan = the authenticated professional's Firebase Auth UID
+   * (nutritionistId, see ADR-010). Empty until a professional is signed in;
+   * the builder stamps the live UID. Future Firestore writes go to
+   * nutritionists/{nutritionistId}.
+   */
+  nutritionistId: string;
   client: BuilderClient;
   preferredLanguage: SupportedLocale;
   plan: BuilderPlan;

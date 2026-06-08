@@ -169,6 +169,50 @@ For the earliest implementation, prefer:
 
 ---
 
+## Authentication (current state — ADR-010)
+
+Professional sign-in is **Firebase Auth email/password**. The Firebase Auth
+**UID is the canonical `nutritionistId`**; future writes go to
+`nutritionists/{uid}`.
+
+### What protects the professional area today
+
+A **client-side gate** (`RequireAuth`) redirects signed-out users to
+`/[locale]/sign-in`.
+
+> ⚠️ This is a **UX gate, not a server security boundary.** It does not stop a
+> determined request from reaching server-rendered output.
+
+It is acceptable **only because**, right now:
+
+- no private data is fetched or rendered server-side,
+- there are no Firestore reads or writes,
+- the plan builder is localStorage-only (per-browser),
+- no cloud data is exposed.
+
+### Required before any cloud persistence (the real boundary)
+
+The Firestore persistence flow MUST add, together:
+
+1. A session cookie minted from the Firebase ID token.
+2. Server-side verification with the Firebase **Admin SDK** (in `proxy.ts` or
+   route handlers) before any read/write.
+3. Firestore security rules enforcing `request.auth.uid == nutritionistId` for
+   everything under `nutritionists/{uid}`.
+
+Do not treat the client gate as sufficient once private data is involved.
+
+### Secrets
+
+- Client uses only the public `NEXT_PUBLIC_FIREBASE_*` web config.
+- **No** Admin SDK / service-account credentials are present in this auth pass.
+- No auth-disabled bypass flag exists (intentionally — it could become dangerous
+  once Firestore lands). Missing client config shows a "not configured" notice.
+- The `from` redirect is validated to internal, locale-stripped, allow-listed
+  paths only (no open redirects).
+
+---
+
 ## Not Yet Implemented
 
 The following should not be assumed until explicitly built:

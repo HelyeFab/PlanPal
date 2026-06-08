@@ -8,6 +8,7 @@ import { ClientPlanPreview } from "./client-plan-preview";
 import { MealBuilder } from "./meal-builder";
 import { PlanDetailsCard } from "./plan-details-card";
 import { ActionPill } from "../action-pill";
+import { useAuth } from "../auth/auth-provider";
 import {
   createEmptyState,
   createExamplePlan,
@@ -60,6 +61,7 @@ export function ProfessionalPlanBuilder({ locale, initialState }: Props) {
   const t = useTranslations("builder");
   const tv = useTranslations("builder.validation");
 
+  const { user } = useAuth();
   const [state, dispatch] = useReducer(builderReducer, initialState);
   // Mount flag via useReducer (dispatch in an effect is fine; setState is not).
   const [ready, markReady] = useReducer(() => true, false);
@@ -77,6 +79,13 @@ export function ProfessionalPlanBuilder({ locale, initialState }: Props) {
     if (!ready) return;
     saveBuilderState(state);
   }, [state, ready]);
+
+  // Stamp the signed-in professional's UID as the plan owner (nutritionistId).
+  useEffect(() => {
+    if (user && state.nutritionistId !== user.uid) {
+      dispatch({ type: "setNutritionistId", uid: user.uid });
+    }
+  }, [user, state.nutritionistId]);
 
   if (!ready) {
     return <BuilderSkeleton />;

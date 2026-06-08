@@ -12,6 +12,7 @@ import type { FoodUnit, SupportedLocale } from "@planpal/shared";
 /** An empty plan in the given language — the starting point for a fresh client. */
 export function createEmptyState(locale: SupportedLocale): BuilderState {
   return {
+    nutritionistId: "",
     client: { name: "", note: "" },
     preferredLanguage: locale,
     plan: { title: "", status: "draft", notes: "", language: locale },
@@ -179,6 +180,7 @@ const COPY: Record<SupportedLocale, ExampleCopy> = {
 export function createExamplePlan(locale: SupportedLocale): BuilderState {
   const c = COPY[locale];
   return {
+    nutritionistId: "",
     client: { name: c.clientName, note: c.clientNote },
     preferredLanguage: locale,
     plan: {

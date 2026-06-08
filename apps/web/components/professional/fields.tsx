@@ -26,7 +26,8 @@ type TextFieldProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  type?: "text" | "time";
+  type?: "text" | "time" | "email" | "password";
+  autoComplete?: string;
   error?: string;
 };
 
@@ -36,6 +37,7 @@ export function TextField({
   onChange,
   placeholder,
   type = "text",
+  autoComplete,
   error,
 }: TextFieldProps) {
   const id = useId();
@@ -48,6 +50,7 @@ export function TextField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
+        autoComplete={autoComplete}
         aria-invalid={error ? true : undefined}
         className={`${fieldBase} ${error ? "border-amber" : ""}`}
       />

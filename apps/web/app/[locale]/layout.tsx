@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata, Viewport } from "next";
 
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -56,7 +57,9 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body className="min-h-dvh">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

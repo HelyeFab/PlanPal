@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { AppShell } from "@/components/app-shell";
+import { RequireAuth } from "@/components/auth/require-auth";
 import { ProfessionalPlanBuilder } from "@/components/professional/professional-plan-builder";
 import { routing } from "@/i18n/routing";
 import { createExamplePlan } from "@/lib/professional/example-plan";
@@ -32,13 +33,15 @@ export default async function ProfessionalPage({ params }: PageProps) {
 
   return (
     <AppShell nav="minimal">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-ink sm:text-3xl">{t("title")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted sm:text-base">
-          {t("subtitle")}
-        </p>
-      </header>
-      <ProfessionalPlanBuilder locale={locale} initialState={initialState} />
+      <RequireAuth>
+        <header className="mb-6">
+          <h1 className="text-2xl font-bold text-ink sm:text-3xl">{t("title")}</h1>
+          <p className="mt-1 max-w-2xl text-sm text-muted sm:text-base">
+            {t("subtitle")}
+          </p>
+        </header>
+        <ProfessionalPlanBuilder locale={locale} initialState={initialState} />
+      </RequireAuth>
     </AppShell>
   );
 }

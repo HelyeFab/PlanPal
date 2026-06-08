@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 0.6
-Status: Reference baseline + implemented patterns (plan builder + status rule)
+Version: 0.7
+Status: Reference baseline + implemented patterns (plan builder + auth)
 
 ## Purpose
 
@@ -286,8 +286,26 @@ Components live in `apps/web/components/`.
   - active → badge **Active/Attivo**, no warning.
   The badge and the warning are always derived from the same status — never show
   an "active" badge alongside a draft warning.
-- **AppShell `nav="minimal"`** — inner pages (e.g. the builder) use the minimal
-  header (logo links home + language switcher, no section nav / CTA).
+- **AppShell `nav="minimal"`** — inner pages (e.g. the builder, sign-in) use the
+  minimal header (logo links home + language switcher + `AccountMenu`, no section
+  nav / CTA).
+
+### Auth patterns (`components/auth/`, route `/[locale]/sign-in`)
+
+- **Sign-in card** (`sign-in-form.tsx`) — single centered card
+  (`mx-auto max-w-md`, `rounded-card border border-line bg-surface p-6 shadow-card`)
+  with `h1` title + subtitle, the shared `TextField` primitives (now support
+  `type="email" | "password"` + `autoComplete`), an error alert
+  (`rounded-2xl bg-amber/15 text-amber`, `role="alert"`), and a full-width solid
+  submit pill (`ActionPill type="submit" className="w-full justify-center"`).
+- **Auth states** — while auth resolves, `RequireAuth` shows a calm centered
+  status line (`role="status"`); signed-out shows the redirect line; missing
+  Firebase config shows a centered "not configured" card. Same pattern (server +
+  first client render identical) so there is no hydration flash.
+- **AccountMenu** (`account-menu.tsx`) — email (`hidden sm:inline`, truncated) +
+  a ghost "Sign out" pill; renders nothing when signed out.
+- All auth copy is localised (`auth` namespace); Firebase error codes map to
+  friendly localised messages via `lib/auth/auth-errors.ts`.
 
 ### Accessibility baseline
 
