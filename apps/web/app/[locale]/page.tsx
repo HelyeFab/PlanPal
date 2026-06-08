@@ -190,8 +190,13 @@ export default async function HomePage({ params }: PageProps) {
             <p className="mt-1 text-sm text-muted">
               {t("professional.planEditor.subtitle")}
             </p>
-            <ActionPill variant="solid" className="mt-4 self-start">
-              {t("professional.planEditor.comingNext")}
+            <ActionPill
+              variant="solid"
+              localeHref="/professional"
+              className="mt-4 self-start"
+              icon="→"
+            >
+              {t("professional.planEditor.open")}
             </ActionPill>
           </article>
         </div>

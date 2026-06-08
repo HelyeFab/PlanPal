@@ -80,8 +80,8 @@
     },
     "planEditor": {
       "title": "Editor dei piani",
-      "subtitle": "Crea piani strutturati: pasti → spazi alimento → opzioni approvate.",
-      "comingNext": "In arrivo"
+      "subtitle": "Crea piani strutturati: pasti → spazi alimentari → opzioni approvate.",
+      "open": "Apri l'editor"
     }
   },
   "questions": {
@@ -96,5 +96,126 @@
     "eating_out": "Fuori casa",
     "missed_meal": "Pasto saltato",
     "general": "Generale"
+  },
+  "mealNames": {
+    "breakfast": "Colazione",
+    "morning_snack": "Spuntino mattutino",
+    "lunch": "Pranzo",
+    "afternoon_snack": "Spuntino pomeridiano",
+    "dinner": "Cena",
+    "custom": "Pasto personalizzato"
+  },
+  "foodCategories": {
+    "protein": "Proteine",
+    "carbohydrate": "Carboidrati",
+    "vegetable": "Verdura",
+    "fruit": "Frutta",
+    "fat": "Grassi",
+    "dairy": "Latticini",
+    "drink": "Bevanda",
+    "free": "Libero",
+    "supplement": "Integratore",
+    "custom": "Personalizzato"
+  },
+  "foodUnits": {
+    "g": "g",
+    "ml": "ml",
+    "piece": "pezzo",
+    "tbsp": "cucchiaio",
+    "tsp": "cucchiaino",
+    "portion": "porzione",
+    "cup": "tazza",
+    "slice": "fetta",
+    "custom": "unità"
+  },
+  "builder": {
+    "title": "Editor del piano",
+    "subtitle": "Crea un cliente, struttura il suo piano e guarda esattamente cosa vedrà.",
+    "loadExample": "Carica esempio",
+    "clear": "Svuota tutto",
+    "client": {
+      "heading": "Cliente",
+      "subtitle": "Per chi è questo piano?",
+      "nameLabel": "Nome del cliente",
+      "namePlaceholder": "es. Maria Rossi",
+      "noteLabel": "Nota privata (facoltativa)",
+      "notePlaceholder": "Visibile solo a te",
+      "languageLabel": "Lingua preferita del piano"
+    },
+    "plan": {
+      "heading": "Dettagli del piano",
+      "titleLabel": "Titolo del piano",
+      "titlePlaceholder": "es. Piano alimentare primavera",
+      "statusLabel": "Stato",
+      "notesLabel": "Nota del piano (facoltativa)",
+      "notesPlaceholder": "Breve nota mostrata con il piano",
+      "languageLabel": "Lingua del piano",
+      "status": {
+        "draft": "Bozza",
+        "active": "Attivo"
+      }
+    },
+    "meals": {
+      "heading": "Pasti",
+      "subtitle": "Aggiungi i pasti di questo piano.",
+      "add": "Aggiungi pasto",
+      "empty": "Ancora nessun pasto. Aggiungi il primo pasto per iniziare a costruire il piano.",
+      "nameLabel": "Pasto",
+      "displayNameLabel": "Nome visualizzato",
+      "displayNamePlaceholder": "Mostrato al cliente",
+      "timeLabel": "Orario",
+      "timePlaceholder": "es. 07:30",
+      "notesLabel": "Note (facoltative)",
+      "remove": "Rimuovi pasto"
+    },
+    "slots": {
+      "heading": "Spazi alimentari",
+      "subtitle": "Uno spazio è una parte del pasto che il cliente riempie con un'opzione approvata.",
+      "add": "Aggiungi spazio",
+      "empty": "Ancora nessuno spazio alimentare in questo pasto.",
+      "labelLabel": "Etichetta dello spazio",
+      "labelPlaceholder": "es. Proteine",
+      "categoryLabel": "Categoria",
+      "requiredLabel": "Obbligatorio",
+      "notesLabel": "Note (facoltative)",
+      "remove": "Rimuovi spazio"
+    },
+    "options": {
+      "heading": "Opzioni approvate",
+      "subtitle": "Il cliente può sceglierne una qualsiasi.",
+      "add": "Aggiungi opzione",
+      "empty": "Ancora nessuna opzione. Aggiungi almeno un'opzione approvata.",
+      "foodNameLabel": "Alimento",
+      "foodNamePlaceholder": "es. Yogurt greco",
+      "quantityLabel": "Qtà",
+      "unitLabel": "Unità",
+      "notesLabel": "Note",
+      "notesPlaceholder": "Facoltative",
+      "defaultLabel": "Predefinita",
+      "remove": "Rimuovi opzione"
+    },
+    "preview": {
+      "heading": "Anteprima cliente",
+      "subtitle": "Ciò che vede il tuo cliente",
+      "todaysMeals": "Pasti di oggi",
+      "activePlan": "Piano attivo",
+      "planLanguage": "Lingua del piano",
+      "draftNotice": "Bozza — il cliente non può ancora vederlo.",
+      "noMeals": "Aggiungi pasti e opzioni per vedere qui la vista del cliente.",
+      "required": "Obbligatorio",
+      "optional": "Facoltativo",
+      "defaultBadge": "Predefinita",
+      "untitledPlan": "Piano senza titolo",
+      "noClient": "Nuovo cliente",
+      "statusPreview": "Anteprima",
+      "previewAsActive": "Anteprima come attivo"
+    },
+    "validation": {
+      "heading": "Prima che il piano sia pronto",
+      "clientName": "Aggiungi il nome del cliente.",
+      "planTitle": "Aggiungi un titolo al piano.",
+      "optionName": "Ogni opzione ha bisogno del nome dell'alimento.",
+      "allGood": "Tutto a posto — il piano è completo."
+    }
   }
 }

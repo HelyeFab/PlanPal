@@ -400,3 +400,57 @@ Negative / trade-offs:
   `useTranslations` / `getTranslations`; mock data carries only keys, never copy.
 - **Switcher:** `components/language-switcher.tsx` (EN | IT pills), preserves the
   current path via the locale-aware router. No persisted preference yet (MVP).
+
+---
+
+## ADR-009: First product flow uses local state + localStorage, not Firestore
+
+Date: 2026-06-08
+Status: Accepted
+
+### Context
+
+The first real product flow (the professional plan builder + client preview,
+docs/MVP_4_FIRST_PRODUCT_FLOW.md) needs somewhere to keep the plan being built.
+Firebase Auth is not wired up — the Firebase helpers are lazy placeholders that
+throw when unconfigured, and there is no authenticated `nutritionistId` to own
+writes. docs/SECURITY_BOUNDARIES.md requires writes to live under
+`nutritionists/{nutritionistId}` with clear ownership, and the scaffold brief
+said not to improvise unsafe Firestore writes.
+
+### Decision
+
+Implement the first product flow with **local React state (`useReducer`) plus
+`localStorage`**. No Firestore reads or writes happen in this flow.
+
+The builder's working types (`apps/web/lib/professional/types.ts`) mirror the
+shared domain (MealPlan → Meal → FoodSlot → FoodOption) field-for-field, using
+the shared enums, so the state maps directly onto the Firestore schema later.
+
+### Reasoning
+
+This ships a usable, typed, fully interactive core loop now without depending on
+auth, and without creating an ownership/security gap. Keeping the shape
+schema-compatible means cloud persistence becomes a mapping step, not a rewrite.
+
+### Consequences
+
+Positive:
+
+- Real product value (build a plan, see the client preview) with zero auth risk.
+- Drafts survive refreshes (localStorage), so the flow feels like a product.
+- A clean, documented path to Firestore persistence.
+
+Negative / trade-offs:
+
+- Drafts are per-browser and not shared or backed up.
+- A later flow must add auth + the local-state → Firestore mapping.
+
+### Implications for future work
+
+- The next flow adds Firebase Auth for the professional, then maps builder state
+  to `nutritionists/{uid}/patients/.../plans/...` per docs/MVP_2 — only after
+  auth ownership is resolved.
+- Do not add Firestore writes to the builder until auth ownership exists.
+- Keep builder draft types aligned with `@planpal/shared` so the mapping stays
+  trivial. Builder UI-state types belong in the app, not in the shared package.

@@ -1,0 +1,9 @@
+
+> planpal@0.0.0 lint
+> npm --workspace apps/web run lint
+
+
+> @planpal/web@0.0.0 lint
+> eslint .
+
+exit: 0

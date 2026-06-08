@@ -13,6 +13,8 @@ export type Patient = {
   nutritionistId: string;
   name: string;
   email?: string;
+  /** Private note for the professional about this client (not shown to the client). */
+  note?: string;
   activePlanId?: string;
   createdAt: string;
   updatedAt: string;

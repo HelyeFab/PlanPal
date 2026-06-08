@@ -2,7 +2,59 @@
 
 Last updated: 2026-06-08
 
-## What was built
+## Latest: First product flow (MVP-4) — professional plan builder + client preview
+
+The first real product loop is implemented (docs/MVP_4_FIRST_PRODUCT_FLOW.md):
+a professional creates a client → structures a plan → adds meals → food slots →
+approved options, with a **live client "today's plan" preview** beside the builder.
+
+- **Route:** `/[locale]/professional` (`/en/professional`, `/it/professional`),
+  linked from the home "Plan editor" teaser. Statically generated per locale.
+- **Persistence:** local `useReducer` state + `localStorage` only — **no auth /
+  Firestore yet** (ADR-009). Draft shapes mirror the Firestore schema field-for-field.
+- **Localisation:** fully en/it. New namespaces `builder`, `mealNames`,
+  `foodCategories`, `foodUnits`. Example plan *data* is locale-keyed in
+  `lib/professional/example-plan.ts` (a plan is authored in one language).
+- **Shared types:** reused; `Patient` gained optional `note?`. Builder UI-state
+  draft types live in `apps/web/lib/professional/`, not in shared.
+- **Verified:** typecheck/lint/build clean; `/en/professional` + `/it/professional`
+  prerender; preview updates from entered data; zero English leak on the IT builder;
+  EN/IT message-key parity (161 = 161, no orphans).
+
+### Review pass + fixes (after first build)
+
+- **Status-consistency fix:** the preview badge is now status-aware — draft →
+  "Draft/Bozza" + warning; draft + "Preview as active" toggle → "Preview/Anteprima",
+  no warning; active → "Active/Attivo", no warning. Removed the contradictory
+  "Active plan" badge + draft-warning combo; reworded the success banner to a
+  status-neutral "this plan is complete". (UI_REGISTRY v0.6 documents the rule.)
+- **Builder is client-rendered after restore:** the interactive builder renders a
+  skeleton on the server and mounts on the client once the localStorage draft is
+  restored. This makes edits survive locale switches (the page remounts per locale)
+  and avoids hydration mismatches on the form — including ones caused by
+  form-filler browser extensions (e.g. an injected `data-sharkid` attribute).
+
+**Known limitations:** drafts are per-browser (localStorage), not synced/backed up;
+no auth/Firestore; single client/plan at a time; "Preview as active" is an
+ephemeral preview toggle (does not change stored status). A brief skeleton shows
+before the builder hydrates.
+
+**Checks run:** `npm run typecheck` ✓ · `npm run lint` ✓ · `npm run build` ✓
+(saved under `docs/reports/mvp-4-first-product-flow/`).
+
+Key new files: `app/[locale]/professional/page.tsx`; `lib/professional/{types,reducer,
+example-plan,storage,enums}.ts`; `components/professional/{professional-plan-builder,
+client-details-card,plan-details-card,meal-builder,meal-editor-card,food-slot-editor,
+food-option-editor,client-plan-preview,fields,section-card}.tsx`. Extended:
+`AppShell` (`nav="minimal"`), `ActionPill` (`localeHref`, `onClick`), home teaser.
+Docs: new `docs/MVP_4_FIRST_PRODUCT_FLOW.md`, ADR-009, UI_REGISTRY v0.5.
+
+Next recommended flow: add Firebase Auth for the professional, then map builder
+state → Firestore under `nutritionists/{uid}/...` (resolve auth ownership first).
+
+---
+
+## What was built (scaffold)
 
 The first real PlanPal application was scaffolded: an npm monorepo with a
 Next.js web app, a shared types package, Firebase placeholder structure, and the

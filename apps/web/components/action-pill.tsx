@@ -1,11 +1,15 @@
 import type { ReactNode } from "react";
 
+import { Link } from "@/i18n/navigation";
+
 type ActionPillVariant = "solid" | "soft" | "ghost";
 
 type ActionPillProps = {
   children: ReactNode;
-  /** When set, the pill renders as a link; otherwise as a button. */
+  /** Plain link target (hash anchors, external). Renders a raw <a>. */
   href?: string;
+  /** Locale-aware internal route (e.g. "/professional"). Renders next-intl <Link>. */
+  localeHref?: string;
   variant?: ActionPillVariant;
   /** Highlights the pill as the current item (e.g. active nav). */
   active?: boolean;
@@ -13,6 +17,8 @@ type ActionPillProps = {
   icon?: ReactNode;
   className?: string;
   type?: "button" | "submit";
+  /** Click handler for the button form (ignored when href/localeHref is set). */
+  onClick?: () => void;
 };
 
 const base =
@@ -31,11 +37,13 @@ const variantClasses: Record<ActionPillVariant, string> = {
 export function ActionPill({
   children,
   href,
+  localeHref,
   variant = "soft",
   active = false,
   icon,
   className = "",
   type = "button",
+  onClick,
 }: ActionPillProps) {
   const activeClasses = active ? "bg-brand text-white hover:bg-brand-strong" : "";
   const classes = `${base} ${active ? activeClasses : variantClasses[variant]} ${className}`.trim();
@@ -47,6 +55,18 @@ export function ActionPill({
     </>
   );
 
+  if (localeHref) {
+    return (
+      <Link
+        href={localeHref}
+        className={classes}
+        aria-current={active ? "page" : undefined}
+      >
+        {content}
+      </Link>
+    );
+  }
+
   if (href) {
     return (
       <a href={href} className={classes} aria-current={active ? "page" : undefined}>
@@ -56,7 +76,7 @@ export function ActionPill({
   }
 
   return (
-    <button type={type} className={classes}>
+    <button type={type} className={classes} onClick={onClick}>
       {content}
     </button>
   );

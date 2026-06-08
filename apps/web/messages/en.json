@@ -81,7 +81,7 @@
     "planEditor": {
       "title": "Plan editor",
       "subtitle": "Build structured plans: meals → food slots → approved options.",
-      "comingNext": "Coming next"
+      "open": "Open the builder"
     }
   },
   "questions": {
@@ -96,5 +96,126 @@
     "eating_out": "Eating out",
     "missed_meal": "Missed meal",
     "general": "General"
+  },
+  "mealNames": {
+    "breakfast": "Breakfast",
+    "morning_snack": "Morning snack",
+    "lunch": "Lunch",
+    "afternoon_snack": "Afternoon snack",
+    "dinner": "Dinner",
+    "custom": "Custom meal"
+  },
+  "foodCategories": {
+    "protein": "Protein",
+    "carbohydrate": "Carbohydrate",
+    "vegetable": "Vegetable",
+    "fruit": "Fruit",
+    "fat": "Fat",
+    "dairy": "Dairy",
+    "drink": "Drink",
+    "free": "Free",
+    "supplement": "Supplement",
+    "custom": "Custom"
+  },
+  "foodUnits": {
+    "g": "g",
+    "ml": "ml",
+    "piece": "piece",
+    "tbsp": "tbsp",
+    "tsp": "tsp",
+    "portion": "portion",
+    "cup": "cup",
+    "slice": "slice",
+    "custom": "unit"
+  },
+  "builder": {
+    "title": "Plan builder",
+    "subtitle": "Create a client, structure their plan, and see exactly what they'll see.",
+    "loadExample": "Load example",
+    "clear": "Clear all",
+    "client": {
+      "heading": "Client",
+      "subtitle": "Who is this plan for?",
+      "nameLabel": "Client name",
+      "namePlaceholder": "e.g. Maria Rossi",
+      "noteLabel": "Private note (optional)",
+      "notePlaceholder": "Only visible to you",
+      "languageLabel": "Preferred plan language"
+    },
+    "plan": {
+      "heading": "Plan details",
+      "titleLabel": "Plan title",
+      "titlePlaceholder": "e.g. Spring nutrition plan",
+      "statusLabel": "Status",
+      "notesLabel": "Plan note (optional)",
+      "notesPlaceholder": "Short note shown with the plan",
+      "languageLabel": "Plan language",
+      "status": {
+        "draft": "Draft",
+        "active": "Active"
+      }
+    },
+    "meals": {
+      "heading": "Meals",
+      "subtitle": "Add the meals in this plan.",
+      "add": "Add meal",
+      "empty": "No meals yet. Add the first meal to start building the plan.",
+      "nameLabel": "Meal",
+      "displayNameLabel": "Display name",
+      "displayNamePlaceholder": "Shown to the client",
+      "timeLabel": "Time",
+      "timePlaceholder": "e.g. 07:30",
+      "notesLabel": "Notes (optional)",
+      "remove": "Remove meal"
+    },
+    "slots": {
+      "heading": "Food slots",
+      "subtitle": "A slot is a part of the meal the client fills with one approved option.",
+      "add": "Add food slot",
+      "empty": "No food slots in this meal yet.",
+      "labelLabel": "Slot label",
+      "labelPlaceholder": "e.g. Protein",
+      "categoryLabel": "Category",
+      "requiredLabel": "Required",
+      "notesLabel": "Notes (optional)",
+      "remove": "Remove slot"
+    },
+    "options": {
+      "heading": "Approved options",
+      "subtitle": "The client may pick any one of these.",
+      "add": "Add option",
+      "empty": "No options yet. Add at least one approved option.",
+      "foodNameLabel": "Food",
+      "foodNamePlaceholder": "e.g. Greek yogurt",
+      "quantityLabel": "Qty",
+      "unitLabel": "Unit",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Optional",
+      "defaultLabel": "Default",
+      "remove": "Remove option"
+    },
+    "preview": {
+      "heading": "Client preview",
+      "subtitle": "What your client sees",
+      "todaysMeals": "Today's meals",
+      "activePlan": "Active plan",
+      "planLanguage": "Plan language",
+      "draftNotice": "Draft — your client can't see this yet.",
+      "noMeals": "Add meals and options to see the client view here.",
+      "required": "Required",
+      "optional": "Optional",
+      "defaultBadge": "Default",
+      "untitledPlan": "Untitled plan",
+      "noClient": "New client",
+      "statusPreview": "Preview",
+      "previewAsActive": "Preview as active"
+    },
+    "validation": {
+      "heading": "Before this plan is ready",
+      "clientName": "Add a client name.",
+      "planTitle": "Add a plan title.",
+      "optionName": "Every option needs a food name.",
+      "allGood": "Looks good — this plan is complete."
+    }
   }
 }

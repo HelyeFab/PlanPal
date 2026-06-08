@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 0.4
-Status: Reference baseline + implemented patterns (mobile responsiveness audited)
+Version: 0.6
+Status: Reference baseline + implemented patterns (plan builder + status rule)
 
 ## Purpose
 
@@ -208,6 +208,11 @@ Tailwind CSS v4 with CSS-first config. Design tokens live in
 | Status: active | `bg-mint/15 text-mint` pill |
 | Status: draft | `bg-amber/15 text-amber` pill |
 | Status: archived | `bg-muted/15 text-muted` pill |
+| Form input/select/textarea | `w-full rounded-2xl border border-line bg-surface-muted px-3 py-2 text-sm text-ink placeholder:text-faint` + `focus-visible:outline-2 focus-visible:outline-brand` |
+| Field label | `text-xs font-semibold text-muted` (associated `<label htmlFor>`) |
+| Field error | append `border-amber`; message `text-xs text-amber`; input gets `aria-invalid` |
+| Toggle / switch | `role="switch"` button, `h-6 w-10 rounded-pill`, track `bg-brand` (on) / `bg-line` (off), knob `size-4 rounded-full bg-white` |
+| Remove (row) button | round `size-7 rounded-full border border-line bg-surface text-muted hover:border-amber hover:text-amber`, `×` glyph, `aria-label` |
 
 ---
 
@@ -253,6 +258,36 @@ Components live in `apps/web/components/`.
   active locale `bg-brand text-white`, inactive `text-muted hover:text-ink`.
   Uses `aria-pressed` and a `role="group"` labelled by `language.label`. Keeps
   the current path via the locale-aware router; no persisted preference (MVP).
+
+### Plan builder patterns (`components/professional/`, route `/[locale]/professional`)
+
+- **Form primitives** (`fields.tsx`) — `TextField`, `TextAreaField`,
+  `NumberField`, `SelectField`, `ToggleField`. All share the form-input baseline
+  above and own their `<label>` association via `useId`. Reuse these for any new
+  form rather than hand-rolling inputs.
+- **SectionCard** (`section-card.tsx`) — standard builder card: `rounded-card
+  border border-line bg-surface p-5 shadow-soft`, heading + optional subtitle +
+  optional header action (e.g. an "Add" pill). `RemoveButton` is the round `×`
+  control for repeatable rows.
+- **Builder layout** — two columns on `lg`:
+  `grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]`. Left column = stacked builder
+  cards (`flex flex-col gap-5`); right column = `aside` that is
+  `lg:sticky lg:top-24 lg:self-start` holding the validation checklist + live
+  preview. Mobile stacks (preview last).
+- **Nested repeatable rows** — meal → slot → option editors nest in progressively
+  lighter surfaces (`bg-surface-muted/50` → `bg-surface` → `bg-surface-muted/60`)
+  so depth reads visually. Each level has an inline "Add" pill and a `RemoveButton`.
+- **ClientPlanPreview** (`client-plan-preview.tsx`) — a phone-style read-only card
+  (`rounded-[1.25rem]` inner, brand gradient header) rendering the client
+  "today's plan" live from builder state; hides empty/in-progress options.
+  **Status display rule** (single source of truth for the badge/warning):
+  - draft (default) → badge **Draft/Bozza** + amber "client can't see this yet" warning;
+  - draft + "Preview as active" toggle on → badge **Preview/Anteprima**, no warning;
+  - active → badge **Active/Attivo**, no warning.
+  The badge and the warning are always derived from the same status — never show
+  an "active" badge alongside a draft warning.
+- **AppShell `nav="minimal"`** — inner pages (e.g. the builder) use the minimal
+  header (logo links home + language switcher, no section nav / CTA).
 
 ### Accessibility baseline
 
