@@ -1,21 +1,21 @@
 # PlanPal MVP 8 — Nutritional Replacement Engine
 
-Version: 0.2
-Status: MVP-8a (data foundation) IMPLEMENTED · MVP-8b (engine + results UI) pending
+Version: 0.3
+Status: MVP-8 IMPLEMENTED (8a data foundation + 8b deterministic engine)
 
 > Replacement intelligence is based on **nutritional equivalence**, not
-> approved-list lookup only (ADR-013). MVP-8 ships in two internal passes
-> (ADR-014):
+> approved-list lookup only (ADR-013). Shipped in two internal passes (ADR-014):
 >
 > - **MVP-8a — Replacement data foundation (DONE):** shared replacement/nutrition
 >   types; optional `FoodOption.{nutrition,role,replacementGroupId}`; Firestore
 >   mapping; collapsed "Nutrition & role" UI on each option; owned
->   `nutritionists/{uid}/replacementGroups` collection + `/api/replacement-groups`
->   + a minimal group manager at `/[locale]/professional/replacements`.
-> - **MVP-8b — Deterministic engine + results UI (NEXT):** `POST /api/replacements`,
->   the classification algorithm below, the results UI, and the "Find replacements"
->   entry point.
+>   `nutritionists/{uid}/replacementGroups` + `/api/replacement-groups` + group manager.
+> - **MVP-8b — Deterministic engine + results UI (DONE, ADR-015):** pure engine
+>   `lib/replacements/engine.ts`, `POST /api/replacements`, the
+>   `/[locale]/professional/replacements` tester + grouped results, and the
+>   "Find replacements" entry point on each food option. No OpenAI in classification.
 >
+> **Not yet:** approval into the plan (MVP-9) and any patient-facing surface (MVP-10).
 > The sections below remain the spec for the whole of MVP-8.
 
 ## Product goal

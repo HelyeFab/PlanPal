@@ -7,11 +7,15 @@ import { ActionPill } from "@/components/action-pill";
 import { AppShell } from "@/components/app-shell";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { ReplacementGroupManager } from "@/components/replacements/replacement-group-manager";
+import { ReplacementTester } from "@/components/replacements/replacement-tester";
 import { getCurrentNutritionistId } from "@/lib/auth/server-session";
 import { isFirebaseAdminConfigured } from "@/lib/env";
 import { routing } from "@/i18n/routing";
 
-type PageProps = { params: Promise<{ locale: string }> };
+type PageProps = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +27,10 @@ export async function generateMetadata({
   return { title: t("title") };
 }
 
-export default async function ReplacementsPage({ params }: PageProps) {
+export default async function ReplacementsPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) {
     notFound();
@@ -38,6 +45,9 @@ export default async function ReplacementsPage({ params }: PageProps) {
   }
 
   const t = await getTranslations("replacements");
+  const sp = await searchParams;
+  const one = (v: string | string[] | undefined) =>
+    typeof v === "string" ? v : undefined;
 
   return (
     <AppShell nav="minimal">
@@ -53,7 +63,20 @@ export default async function ReplacementsPage({ params }: PageProps) {
             {t("subtitle")}
           </p>
         </header>
-        <ReplacementGroupManager />
+
+        <ReplacementTester
+          initialMealId={one(sp.mealId)}
+          initialFoodSlotId={one(sp.foodSlotId)}
+          initialOptionId={one(sp.optionId)}
+        />
+
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-ink">{t("groupsHeading")}</h2>
+          <p className="mb-4 mt-1 max-w-2xl text-sm text-muted">
+            {t("groupsSubtitle")}
+          </p>
+          <ReplacementGroupManager />
+        </div>
       </RequireAuth>
     </AppShell>
   );

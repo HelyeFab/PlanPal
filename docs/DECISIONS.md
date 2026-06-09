@@ -742,3 +742,62 @@ add professional-side surface (kept minimal/collapsed).
 - MVP-9: approve a candidate → append as an approved `FoodOption` in the slot.
 - A food database integration is a later, separate option (`source:
   "nutrition_database"` is reserved).
+
+---
+
+## ADR-015: MVP-8b deterministic replacement engine
+
+Date: 2026-06-09
+Status: Accepted
+
+### Context
+
+MVP-8b builds the replacement engine on the MVP-8a foundation (macros, roles,
+replacement groups). It must answer "what can replace 100g egg whites?" with
+classified candidates, **deterministically** — OpenAI must never decide
+equivalence (ADR-013).
+
+### Decision
+
+- **Engine is a pure function** (`lib/replacements/engine.ts`):
+  `(saved plan, owned replacement groups, request) → ReplacementResult`. No
+  OpenAI, no I/O, no randomness.
+- **Candidate sourcing order:** (1) approved options in the same slot →
+  `approved`; (2) explicitly assigned `replacementGroupId`; (3) groups matching
+  the original role; (4) same-role options elsewhere in the plan. De-duplicated by
+  food name (approved wins).
+- **Quantity scaling:** scale a candidate to match the original's **primary macro
+  for the role** (lean_protein/protein → protein; carbohydrate → carbohydrates;
+  fat → fat; fruit/vegetable/dairy/mixed/other → calories). If the primary macro
+  is missing on either side, do not invent a quantity → `needs_professional_review`.
+- **Classification:** after scaling to the primary macro, compare secondary
+  macros against the group/default **tolerance** (±20% cal, ±20% protein, ±5g
+  fat). Within tolerance → `nutritionally_similar`; mildly outside (≤2× tolerance)
+  → `needs_professional_review`; grossly outside → `not_suitable`. `insufficientData`
+  when no candidates can be produced.
+- **Reason/caution codes** are returned by the engine and localised in the UI
+  (e.g. `approved_in_slot`, `same_replacement_group`, `similar_protein`,
+  `higher_fat`, `missing_candidate_nutrition`, `outside_tolerance`).
+- **Sort:** approved → nutritionally_similar(high) → (medium) →
+  needs_professional_review → not_suitable.
+- **API:** `POST /api/replacements` (Node, same-origin, verified session cookie,
+  uid from cookie only, Admin SDK reads of the owned plan + groups). No OpenAI key.
+- **UI:** a tester + grouped results on `/[locale]/professional/replacements`, and
+  a "Find replacements" link from each food option (passes `mealId/foodSlotId/
+  optionId`). Candidates are labelled "candidate for professional review — not
+  automatically approved". **Approval into the plan is MVP-9, not here.**
+
+### Consequences
+
+Positive: consistent, auditable, safe suggestions grounded in stored data;
+explainable via reason codes; no LLM cost. Negative: quality depends on the
+professional entering macros + curating groups; tight default tolerances mark
+genuinely different foods (e.g. egg whites vs ricotta) as not_suitable — the
+professional widens tolerance per group when appropriate.
+
+### Implications for future work
+
+- MVP-9: approve a candidate → append it as an approved `FoodOption` in the slot.
+- MVP-10: patient assistant exposes only approved replacements.
+- A later optional LLM layer may *explain* the deterministic result; it must never
+  change the classification.

@@ -6,6 +6,7 @@ import type { Dispatch } from "react";
 
 import { NumberField, SelectField, TextField, ToggleField } from "./fields";
 import { RemoveButton } from "./section-card";
+import { ActionPill } from "../action-pill";
 import { FOOD_UNITS } from "@/lib/professional/enums";
 import type { BuilderAction } from "@/lib/professional/reducer";
 import {
@@ -34,6 +35,7 @@ const MACROS: Array<{ key: keyof BuilderNutrition; labelKey: string }> = [
  * optional collapsed "Nutrition & role" section (MVP-8a) for the replacement engine. */
 export function FoodOptionEditor({ mealId, slotId, option, dispatch }: Props) {
   const t = useTranslations("builder.options");
+  const tb = useTranslations("builder");
   const tu = useTranslations("foodUnits");
   const tr = useTranslations("foodRoles");
   const [showNutrition, setShowNutrition] = useState(false);
@@ -90,15 +92,25 @@ export function FoodOptionEditor({ mealId, slotId, option, dispatch }: Props) {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setShowNutrition((v) => !v)}
-        aria-expanded={showNutrition}
-        className="mt-2 text-xs font-semibold text-brand hover:text-brand-strong"
-      >
-        {showNutrition ? "▾ " : "▸ "}
-        {t("nutritionSection")}
-      </button>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShowNutrition((v) => !v)}
+          aria-expanded={showNutrition}
+          className="text-xs font-semibold text-brand hover:text-brand-strong"
+        >
+          {showNutrition ? "▾ " : "▸ "}
+          {t("nutritionSection")}
+        </button>
+        <ActionPill
+          localeHref={`/professional/replacements?mealId=${mealId}&foodSlotId=${slotId}&optionId=${option.id}`}
+          variant="ghost"
+          icon="⇄"
+          className="px-2.5 py-1 text-xs"
+        >
+          {tb("findReplacements")}
+        </ActionPill>
+      </div>
 
       {showNutrition ? (
         <div className="mt-2 rounded-2xl border border-line bg-surface p-3">

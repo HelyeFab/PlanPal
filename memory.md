@@ -2,7 +2,46 @@
 
 Last updated: 2026-06-09
 
-## Latest: MVP-8a — Replacement data foundation (DONE; stop before MVP-8b)
+## Latest: MVP-8b — Deterministic replacement engine + results UI (DONE; stop before MVP-9)
+
+Second pass of MVP-8 (ADR-013/014/015). The deterministic engine + results UI on
+the 8a foundation. **No OpenAI in classification; no approval (MVP-9); nothing
+patient-facing (MVP-10).**
+
+- **Engine** (`lib/replacements/engine.ts`, pure): `(saved plan, owned groups,
+  request) → ReplacementResult`. Candidate order: approved-in-slot → explicit
+  `replacementGroupId` → role-matched groups → same-role-in-plan (deduped by name).
+  Scales candidates to the role's **primary macro** (protein/carbs/fat/calories)
+  for `suggestedQuantity`; classifies by tolerance (±20% cal/protein, ±5g fat):
+  within → `nutritionally_similar`; mild → `needs_professional_review`; gross →
+  `not_suitable`; none → `insufficientData`. Missing macros → safe fallback, never invented.
+- **API:** `POST /api/replacements` (Node, same-origin, verified session, Admin SDK,
+  reads owned plan + groups). No OpenAI key.
+- **UI:** `/[locale]/professional/replacements` now has a **tester** (pick a saved
+  food → grouped Approved / Needs review / Not suitable, with suggested quantity,
+  confidence, localised reasons/cautions, "candidate for review" note) above the
+  group manager. Per-option **"Find replacements"** link in the builder
+  (`?mealId&foodSlotId&optionId`). Builder header link relabelled "Replacements".
+
+New: `lib/replacements/{engine,read-groups,client}.ts`; `app/api/replacements/route.ts`;
+`components/replacements/replacement-tester.tsx`. Modified: replacements page
+(tester + manager + searchParams), `food-option-editor.tsx` (Find-replacements link),
+messages (engine UI + `reasons`/`cautions`/`class`/`confidence` codes). Docs: ADR-015,
+MVP_8 (status), UI_REGISTRY v1.1.
+
+**Checks:** typecheck ✓ · lint ✓ · build ✓ (new `/api/replacements`). EN/IT parity 295=295.
+**Live-verified (isolated test UID, cleaned up) — 8/8:** approved-in-slot→approved;
+turkey (scaled to match protein)→nutritionally_similar (37g); avocado→not_suitable;
+no-macro member→needs_professional_review; no-data option→insufficientData; guards 401/403/307.
+Outputs in `docs/reports/mvp-8b-deterministic-replacement-engine/`.
+
+**Next: MVP-9 — professional review/approval of suggested replacements** (approve a
+candidate → append as an approved FoodOption in the slot). Do NOT start until the
+8b engine behaviour is reviewed. Then MVP-10 (patient access + patient assistant).
+
+---
+
+## MVP-8a — Replacement data foundation (DONE)
 
 First pass of MVP-8 (ADR-013/ADR-014). **Data foundation only — the deterministic
 engine + results UI are MVP-8b, NOT built yet.**

@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 1.0
-Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement data)
+Version: 1.1
+Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement engine)
 
 ## Purpose
 
@@ -304,6 +304,16 @@ Components live in `apps/web/components/`.
   `SelectField` (with a "— none —" option) + a macro grid (5 `NumberField`s:
   calories/protein/carbs/fat/fibre) in a bordered `bg-surface` panel. Keeps the
   dense builder calm; macros are optional and never invented.
+- **Replacement tester + results** (`replacement-tester.tsx`, top of
+  `/[locale]/professional/replacements`, MVP-8b) — a `SectionCard` with a
+  `SelectField` (pick a saved-plan food) + a solid "Find replacements" pill
+  (`icon="⇄"`). Results are grouped **Approved / Needs review / Not suitable**;
+  each candidate row shows food name, scaled `suggestedQuantity`, a classification
+  badge (mint/brand-soft/amber/muted by class), a confidence chip, localised
+  reason codes (`·`-joined) + amber caution codes, and a "candidate for
+  professional review" note. States: loading / no-plan / insufficient-data /
+  no-candidates / error. Deep-linkable via `?mealId&foodSlotId&optionId` from the
+  builder's per-option "Find replacements" link (`food-option-editor.tsx`).
 - **Replacement group manager** (`components/replacements/`, route
   `/[locale]/professional/replacements`) — `ReplacementGroupManager` lists
   `GroupEditorCard`s (each a `SectionCard`): name, role, a 3-up tolerance grid
