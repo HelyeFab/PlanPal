@@ -632,3 +632,63 @@ is still required before broader pilot use (known limitation).
 - Assistant history persistence (`nutritionists/{uid}/patients/{pid}/questions`)
   as a separate flow.
 - Client-facing assistant only after client login exists.
+
+---
+
+## ADR-013: Replacement intelligence is based on nutritional equivalence, not approved-list lookup only
+
+Date: 2026-06-09
+Status: Accepted
+
+### Context
+
+MVP-7 shipped a professional assistant that answers from **approved options
+only**. That is the safest answer, but it is **not the whole product vision**.
+The core patient problem is broader:
+
+> "I have 100g of egg whites in my plan. Given my plan, what can I eat instead?"
+
+The right answer must consider the original food's nutritional role, quantity,
+macros (where available), meal context, food slot/category, and professional
+constraints — not just foods already manually listed as approved options.
+
+### Decision
+
+- Approved options remain the **safest** answer and are preferred when available.
+- But PlanPal must support **candidate replacements based on nutritional
+  similarity**, not approved-list lookup alone.
+- **Non-approved replacements must never be presented as automatically allowed.**
+- Every replacement is classified:
+
+  | Classification | Meaning |
+  | --- | --- |
+  | `approved` | Explicitly approved in the plan or by the professional. |
+  | `nutritionally_similar` | Appears to match the original food's nutritional role, but **requires professional review** unless already approved. |
+  | `needs_professional_review` | Plausible but uncertain / insufficient data — defer to the professional. |
+  | `not_suitable` | Too different, conflicts with the slot/plan, or lacks enough data. |
+
+- **Professional-facing** wording may surface candidates *for review*
+  ("not currently approved, but a possible candidate — review before showing the
+  patient as allowed").
+- **Patient-facing** wording must be careful and never imply approval
+  ("this looks similar, but it isn't approved in your plan yet — ask your
+  professional to approve it").
+- We do **not** rely purely on the LLM to invent replacements. Accuracy comes
+  from professional-defined equivalence groups and/or stored macro data first
+  (see docs/MVP_8_NUTRITIONAL_REPLACEMENT_ENGINE.md).
+
+### Consequences
+
+Positive: PlanPal addresses the real substitution problem, not just list lookup;
+safety is preserved via explicit classification + review. Negative: needs a data
+source for nutrition/equivalence (macros on plan items, a trusted food DB, or
+professional-defined groups); more product surface (review/approval flow, MVP-9).
+
+### Implications for future work
+
+- MVP-8 builds the replacement engine (candidates + classification), MVP-9 the
+  professional review/approval, MVP-10 patient access + patient assistant.
+- `FoodOption` will likely gain optional `nutrition?`, `role?`, and
+  `replacementGroupId?` fields later — documented, not implemented yet.
+- The MVP-7 assistant stays "approved options only" until MVP-8/9 land; its docs
+  are annotated as "safe but incomplete".

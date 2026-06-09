@@ -85,7 +85,20 @@ script was removed and never committed.
 - Professional-only; no client-facing assistant.
 - Professional rules not yet authored (context.rules is empty until a rules UI exists).
 
+## Trajectory note (ADR-013)
+
+MVP-7 is **intentionally retained** as **"Professional approved-plan assistant
+v1"**. Its strict approved-option-only behaviour is **safe but incomplete** for
+the final patient-facing substitution vision: the core PlanPal question is "what
+can I eat instead of 100g egg whites *without losing the nutritional purpose of
+the plan*?", which needs nutritional replacement intelligence, not approved-list
+lookup alone. Approved options remain the safest answer, but they are not the
+whole product.
+
 ## Next recommended flow
 
-Assistant history persistence, a rules-authoring screen, or per-user rate
-limiting — each its own blueprint.
+**MVP-8 — Nutritional Replacement Engine** (see
+`docs/MVP_8_NUTRITIONAL_REPLACEMENT_ENGINE.md`), then MVP-9 (professional
+review/approval) and MVP-10 (patient access + patient assistant). The earlier
+candidates (assistant history persistence, rules-authoring, per-user rate
+limiting) are smaller follow-ups, not the main trajectory.

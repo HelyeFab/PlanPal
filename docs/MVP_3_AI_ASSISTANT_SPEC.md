@@ -5,6 +5,35 @@ Status: Draft
 
 ## Purpose
 
+> **Trajectory correction (ADR-013).** The MVP-7 assistant currently answers
+> from **approved options only**. This is safe but **incomplete**. PlanPal's
+> substitution vision is **nutritional equivalence within a professional plan**,
+> not approved-list lookup alone. Future patient-facing assistant behaviour must
+> support nutritional replacement intelligence once **MVP-8** (replacement
+> engine) and **MVP-9** (professional review/approval) exist. A non-approved
+> candidate must never be presented as automatically allowed. See
+> `docs/MVP_8_NUTRITIONAL_REPLACEMENT_ENGINE.md`.
+>
+> Future assistant wording (after MVP-8/9):
+> - **Professional-facing:** "This food is not currently approved in the slot,
+>   but it may be a candidate replacement because it appears nutritionally
+>   similar. It should be reviewed before being shown to the patient as allowed."
+> - **Patient-facing:** "This looks similar to your planned food, but it has not
+>   been approved in your plan yet. You can ask your professional to approve it."
+>
+> Behaviour rules by audience:
+>
+> **Professional assistant**
+> - May identify non-approved foods as possible candidate replacements for review.
+> - Must mark them as `needs_professional_review`.
+> - Must not call them `approved` unless they are approved.
+>
+> **Patient assistant** (MVP-10)
+> - May explain approved replacements.
+> - May say a candidate "looks similar" only if the product explicitly supports it.
+> - Must not present non-approved candidates as automatically allowed.
+> - Should encourage asking the professional when uncertain.
+
 This document defines the first AI assistant behaviour for PlanPal.
 
 The assistant exists to help a client understand and follow an active professional plan.

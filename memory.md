@@ -1,8 +1,33 @@
 # Memory — PlanPal App Scaffold
 
-Last updated: 2026-06-08
+Last updated: 2026-06-09
 
-## Latest: Plan-grounded assistant (MVP-7)
+## Latest: Trajectory correction — nutritional replacement vision (ADR-013, docs-only)
+
+A product-direction correction (no code changed):
+
+- **MVP-7 is complete and RETAINED** as "Professional approved-plan assistant v1".
+- **Correction:** approved-list lookup alone is too narrow. PlanPal's substitution
+  vision is **nutritional equivalence within the context of a professional plan**
+  — e.g. "what can I eat instead of 100g egg whites *without losing the plan's
+  nutritional purpose*?", not just "which options were manually approved?".
+- Replacements are classified: `approved` / `nutritionally_similar` /
+  `needs_professional_review` / `not_suitable`. Non-approved candidates are NEVER
+  presented as automatically allowed. Professional assistant may surface
+  candidates for review; patient assistant (later) must be careful.
+- **Next phase: MVP-8 Nutritional Replacement Engine** (spec:
+  `docs/MVP_8_NUTRITIONAL_REPLACEMENT_ENGINE.md`). Recommended safest path:
+  professional-defined replacement groups + optional macro fields; the LLM only
+  explains/ranks — it does not invent allowed swaps.
+- Roadmap: MVP-8 (engine) → MVP-9 (professional review/approval) → **MVP-10
+  (patient access + patient assistant)**. The patient assistant remains a core
+  PlanPal goal; professional-side work is the foundation, not the destination.
+- Docs changed: ADR-013, ROADMAP, MVP_3, MVP_7 (+ its report), new MVP_8 spec,
+  this memory. No build/typecheck impact (documentation only).
+
+---
+
+## Plan-grounded assistant (MVP-7)
 
 First AI assistant (docs/MVP_7_PLAN_GROUNDED_ASSISTANT.md, ADR-012). **Professional-only**,
 single-turn, grounded ONLY in the saved plan — no diet generation, no medical advice.
@@ -35,9 +60,9 @@ approved-options → ok; unsupported substitution (ricotta) → needs_profession
 new diet → refused; shopping list → ok; no-plan → noPlan (no OpenAI call); answers in Italian (plan.language);
 guards 401/403/307. Outputs in `docs/reports/mvp-7-plan-grounded-assistant/`.
 
-**Next flow candidates:** assistant history persistence
-(`nutritionists/{uid}/patients/{pid}/questions/{qid}`), a rules-authoring screen, or
-per-user rate limiting before pilot.
+**Next flow:** MVP-8 Nutritional Replacement Engine (ADR-013). Smaller follow-ups
+(assistant history persistence, rules-authoring, per-user rate limiting) are
+secondary to the replacement trajectory.
 
 ---
 

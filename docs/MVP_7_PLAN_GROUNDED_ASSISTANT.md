@@ -1,7 +1,17 @@
 # PlanPal MVP 7 — Plan-Grounded Assistant
 
 Version: 0.1
-Status: Implemented
+Status: Implemented (Professional approved-plan assistant v1)
+
+> **Scope note (ADR-013).** This assistant answers from **approved options
+> only**. That is **safe but intentionally incomplete** — it is not the whole
+> product vision. The core patient problem ("what can I eat instead of 100g egg
+> whites?") needs **nutritional replacement intelligence**, delivered by
+> **MVP-8** (replacement engine) and **MVP-9** (professional review/approval),
+> with the patient-facing assistant arriving in **MVP-10**. Until then this
+> assistant must NOT invent non-approved substitutions; it lists approved options
+> and defers anything else to the professional. See
+> `docs/MVP_8_NUTRITIONAL_REPLACEMENT_ENGINE.md`.
 
 ## Flow name
 
