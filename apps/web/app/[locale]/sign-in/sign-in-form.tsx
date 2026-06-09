@@ -2,7 +2,7 @@
 
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
 import { ActionPill } from "@/components/action-pill";
@@ -28,9 +28,33 @@ export function SignInForm({ from }: Props) {
 
   const destination = sanitizeInternalPath(from);
 
-  // Already signed in → leave the sign-in page.
+  // Client auth persists (IndexedDB) independently of the httpOnly session cookie
+  // (5-day expiry). If we land here WITH a client user, the server gate bounced
+  // us because the cookie is missing/expired — re-establish it from a fresh ID
+  // token before leaving. If that fails, sign out so the cookie/client states
+  // agree and the redirect loop ends with the form shown.
+  const reestablishing = useRef(false);
   useEffect(() => {
-    if (!loading && user) router.replace(destination);
+    if (loading || !user || reestablishing.current) return;
+    reestablishing.current = true;
+    void (async () => {
+      try {
+        const idToken = await user.getIdToken(true);
+        const res = await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
+        if (res.ok) {
+          router.replace(destination);
+          return;
+        }
+      } catch {
+        // fall through to sign-out
+      }
+      await signOut(getFirebaseAuth());
+      reestablishing.current = false;
+    })();
   }, [loading, user, destination, router]);
 
   async function handleSubmit(event: FormEvent) {
