@@ -66,3 +66,28 @@ export type AskAssistantResponse = {
   category: QuestionCategory;
   questionId?: string;
 };
+
+/**
+ * How safe/grounded an assistant answer is (MVP-7, ADR-012).
+ * - `ok`: grounded in the saved plan.
+ * - `needs_professional_review`: partial / uncertain — the professional should check.
+ * - `refused`: out of bounds (e.g. new diet, medical advice, unsupported substitution).
+ */
+export type AssistantSafetyLevel = "ok" | "needs_professional_review" | "refused";
+
+/**
+ * Structured answer from the plan-grounded assistant. The model returns this
+ * shape (Structured Outputs); the server validates it and forces `groundedIn.planId`
+ * to the actually-loaded plan. PlanPal is the source of truth — see
+ * docs/MVP_7_PLAN_GROUNDED_ASSISTANT.md.
+ */
+export type AssistantAnswer = {
+  answer: string;
+  safetyLevel: AssistantSafetyLevel;
+  groundedIn: {
+    planId: string;
+    mealIds?: string[];
+    foodSlotIds?: string[];
+  };
+  suggestedFollowUpQuestions?: string[];
+};

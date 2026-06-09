@@ -39,6 +39,12 @@ export function getServerEnv() {
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL ?? "",
       privateKey: (process.env.FIREBASE_PRIVATE_KEY ?? "").replace(/\\n/g, "\n"),
     },
+    openai: {
+      apiKey: process.env.OPENAI_API_KEY ?? "",
+      // Configurable; the default is verified against OpenAI's available API
+      // models at implementation time (MVP-7). See docs/MVP_7_PLAN_GROUNDED_ASSISTANT.md.
+      model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
+    },
   };
 }
 
@@ -50,4 +56,9 @@ export function isFirebaseAdminConfigured(): boolean {
     firebaseAdmin.clientEmail.length > 0 &&
     firebaseAdmin.privateKey.length > 0
   );
+}
+
+/** True when the OpenAI API key is present server-side (assistant enabled). */
+export function isOpenAIConfigured(): boolean {
+  return getServerEnv().openai.apiKey.length > 0;
 }

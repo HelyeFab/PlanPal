@@ -252,3 +252,27 @@ Before shipping a feature, check:
 Security should be boring and obvious.
 
 If a future agent cannot quickly tell who owns a document and who may access it, the model is too vague.
+
+---
+
+## Assistant boundary (MVP-7 — ADR-012)
+
+The plan-grounded assistant (`POST /api/assistant`) reuses the real server
+boundary and adds AI-specific rules:
+
+- **Server-only OpenAI.** `OPENAI_API_KEY` is a server secret — never
+  `NEXT_PUBLIC_*`, never sent to the client. All OpenAI calls are server-side.
+- **Auth + ownership.** Same-origin check + verified session cookie; the `uid`
+  (= `nutritionistId`) comes from the cookie, never the request body. The plan is
+  read with the Admin SDK only under `nutritionists/{uid}`.
+- **Context minimisation.** Only a minimal `AssistantPlanContext` is sent to the
+  model: plan title/language, meals, slots, approved options, patient first name.
+  NOT sent: the professional's private client note, plan status/notes, emails,
+  billing, credentials, other clients/plans, or the system prompt. The system
+  prompt and `OPENAI_API_KEY` are never returned to the client.
+- **Grounding + structured output.** The model must answer only from the context;
+  output is a validated structured `AssistantAnswer`; the server forces
+  `groundedIn.planId`. Substitutions are allowed only within the same FoodSlot.
+- **Abuse guards (MVP).** Auth required, same-origin, max question length (1000),
+  `max_output_tokens` (700), no anonymous access, no streaming. **Known
+  limitation:** no per-user rate limiter yet — required before broader pilot use.

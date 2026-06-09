@@ -133,6 +133,7 @@
     "subtitle": "Create a client, structure their plan, and see exactly what they'll see.",
     "loadExample": "Load example",
     "clear": "Clear all",
+    "openAssistant": "Open assistant",
     "client": {
       "heading": "Client",
       "subtitle": "Who is this plan for?",
@@ -249,5 +250,31 @@
     "saved": "Saved",
     "unsaved": "Unsaved changes",
     "error": "Couldn't save. Try again."
+  },
+  "planAssistant": {
+    "title": "PlanPal Assistant",
+    "subtitle": "Ask about the saved plan — approved options, swaps, summaries. Answers come only from the plan.",
+    "backToBuilder": "Back to builder",
+    "placeholder": "Ask about the saved plan…",
+    "ask": "Ask",
+    "asking": "Asking…",
+    "examples": "Examples",
+    "disclaimer": "PlanPal answers only from the saved plan — no medical advice, no new diets.",
+    "noPlan": "Save a plan first to use the assistant.",
+    "error": "The assistant couldn't answer right now. Please try again.",
+    "grounded": "Grounded in your saved plan.",
+    "followUps": "Suggested questions",
+    "empty": "Ask a question to see a plan-grounded answer here.",
+    "chips": [
+      "What are the approved options for lunch protein?",
+      "Can the client swap the breakfast yogurt?",
+      "Summarise this plan in simple language.",
+      "Make a shopping list from this plan."
+    ],
+    "badge": {
+      "ok": "Answer based on the plan",
+      "review": "Check with the professional",
+      "refused": "Outside the plan"
+    }
   }
 }

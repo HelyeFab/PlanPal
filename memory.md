@@ -2,7 +2,46 @@
 
 Last updated: 2026-06-08
 
-## Latest: Cloud persistence (MVP-6)
+## Latest: Plan-grounded assistant (MVP-7)
+
+First AI assistant (docs/MVP_7_PLAN_GROUNDED_ASSISTANT.md, ADR-012). **Professional-only**,
+single-turn, grounded ONLY in the saved plan — no diet generation, no medical advice.
+
+- **Route:** `POST /api/assistant` (Node) + page `/[locale]/professional/assistant`
+  (server-gated, linked from the builder header). Same-origin + verified session
+  cookie; `uid` from cookie only; loads the owned saved plan via Admin SDK;
+  builds a **minimal `AssistantPlanContext`**; calls OpenAI server-side; returns a
+  structured `AssistantAnswer`.
+- **OpenAI:** official `openai` Node SDK, **Responses API**, `responses.parse` +
+  `zodTextFormat` (Structured Outputs). Model via `OPENAI_MODEL` (default
+  `gpt-5.4-mini` — verify current id). Key `OPENAI_API_KEY` is **server-only**
+  (gitignored, in `apps/web/.env.local`).
+- **Safety:** server system prompt enforces grounding + same-FoodSlot substitution
+  rule; structured `safetyLevel` (ok / needs_professional_review / refused) drives
+  a UI badge; deferrals → needs_professional_review; out-of-bounds → refused.
+  No saved plan → `{noPlan:true}` (no OpenAI call). Guards: auth, same-origin,
+  max question 1000, max_output_tokens 700, no streaming. **No rate limiter yet** (known limitation).
+- **Locale:** answer in `plan.language` (fallback active UI locale). EN/IT UI parity (203=203).
+
+New: `app/api/assistant/route.ts`, `app/[locale]/professional/assistant/page.tsx`,
+`components/assistant/assistant-panel.tsx`, `lib/assistant/{context,schema,instructions,openai,client}.ts`,
+`lib/professional/read-plan.ts` (extracted; `/api/plan` GET refactored to use it).
+Modified: professional page (assistant link), messages (planAssistant + builder.openAssistant),
+shared assistant.ts (+AssistantAnswer/AssistantSafetyLevel), env.ts (openai + isOpenAIConfigured),
+.env.example. Deps added: `openai`, `zod`. Docs: ADR-012, SECURITY_BOUNDARIES, MVP_7, UI_REGISTRY v0.9.
+
+**Checks:** typecheck ✓ · lint ✓ · build ✓. **Live verification (gpt-5.4-mini, real key, saved plan):**
+approved-options → ok; unsupported substitution (ricotta) → needs_professional_review (refuses + defers);
+new diet → refused; shopping list → ok; no-plan → noPlan (no OpenAI call); answers in Italian (plan.language);
+guards 401/403/307. Outputs in `docs/reports/mvp-7-plan-grounded-assistant/`.
+
+**Next flow candidates:** assistant history persistence
+(`nutritionists/{uid}/patients/{pid}/questions/{qid}`), a rules-authoring screen, or
+per-user rate limiting before pilot.
+
+---
+
+## Cloud persistence (MVP-6)
 
 The first cloud writes + the real server security boundary (docs/MVP_6_CLOUD_PERSISTENCE.md, ADR-011).
 

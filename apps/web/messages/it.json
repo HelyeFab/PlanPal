@@ -133,6 +133,7 @@
     "subtitle": "Crea un cliente, struttura il suo piano e guarda esattamente cosa vedrà.",
     "loadExample": "Carica esempio",
     "clear": "Svuota tutto",
+    "openAssistant": "Apri l'assistente",
     "client": {
       "heading": "Cliente",
       "subtitle": "Per chi è questo piano?",
@@ -249,5 +250,31 @@
     "saved": "Salvato",
     "unsaved": "Modifiche non salvate",
     "error": "Salvataggio non riuscito. Riprova."
+  },
+  "planAssistant": {
+    "title": "Assistente PlanPal",
+    "subtitle": "Fai domande sul piano salvato — opzioni approvate, sostituzioni, riepiloghi. Le risposte provengono solo dal piano.",
+    "backToBuilder": "Torna all'editor",
+    "placeholder": "Chiedi qualcosa sul piano salvato…",
+    "ask": "Chiedi",
+    "asking": "In corso…",
+    "examples": "Esempi",
+    "disclaimer": "PlanPal risponde solo in base al piano salvato — nessun consiglio medico, nessun nuovo piano.",
+    "noPlan": "Salva prima un piano per usare l'assistente.",
+    "error": "L'assistente non è riuscito a rispondere. Riprova.",
+    "grounded": "Basato sul piano salvato.",
+    "followUps": "Domande suggerite",
+    "empty": "Fai una domanda per vedere qui una risposta basata sul piano.",
+    "chips": [
+      "Quali sono le opzioni approvate per le proteine a pranzo?",
+      "Il cliente può sostituire lo yogurt della colazione?",
+      "Riassumi questo piano in parole semplici.",
+      "Crea una lista della spesa da questo piano."
+    ],
+    "badge": {
+      "ok": "Risposta basata sul piano",
+      "review": "Da verificare con il professionista",
+      "refused": "Fuori dal piano"
+    }
   }
 }

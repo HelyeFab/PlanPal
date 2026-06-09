@@ -9,9 +9,9 @@ import { isFirebaseAdminConfigured } from "@/lib/env";
 import { getAdminDb } from "@/lib/firebase/server";
 import {
   builderStateToDocs,
-  docsToBuilderState,
   validateBuilderState,
 } from "@/lib/professional/firestore-mapping";
+import { readSavedPlan } from "@/lib/professional/read-plan";
 
 export const runtime = "nodejs";
 
@@ -29,47 +29,8 @@ export async function GET() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const db = getAdminDb();
-  const patientsSnap = await db
-    .collection(`nutritionists/${uid}/patients`)
-    .orderBy("updatedAt", "desc")
-    .limit(1)
-    .get();
-  if (patientsSnap.empty) return NextResponse.json({ plan: null });
-
-  const patientDoc = patientsSnap.docs[0]!;
-  const plansSnap = await patientDoc.ref
-    .collection("plans")
-    .orderBy("updatedAt", "desc")
-    .limit(1)
-    .get();
-  if (plansSnap.empty) return NextResponse.json({ plan: null });
-
-  const planDoc = plansSnap.docs[0]!;
-  const mealsSnap = await planDoc.ref
-    .collection("meals")
-    .orderBy("sortOrder")
-    .get();
-
-  const meals = [];
-  for (const mealDoc of mealsSnap.docs) {
-    const slotsSnap = await mealDoc.ref
-      .collection("slots")
-      .orderBy("sortOrder")
-      .get();
-    meals.push({
-      data: mealDoc.data(),
-      slots: slotsSnap.docs.map((d) => d.data()),
-    });
-  }
-
-  const state = docsToBuilderState(
-    uid,
-    patientDoc.data(),
-    planDoc.data(),
-    meals,
-  );
-  return NextResponse.json({ plan: state });
+  const plan = await readSavedPlan(uid);
+  return NextResponse.json({ plan });
 }
 
 /**

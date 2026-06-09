@@ -575,3 +575,60 @@ sign-in/out; whole-tree upsert re-reads the (small) tree per save.
 - `firestore.rules` must be deployed (Console or `firebase deploy --only
   firestore:rules`).
 - Multi-plan, debounced autosave, and real-time sync are later, separate flows.
+
+---
+
+## ADR-012: Plan-grounded assistant — OpenAI Responses API, server-side, structured, professional-only
+
+Date: 2026-06-09
+Status: Accepted
+
+### Context
+
+MVP-7 adds the first AI assistant. PlanPal must remain the source of truth: the
+assistant answers only from the professional's saved Firestore plan and approved
+options — no diet generation, no medical advice, no overriding the professional
+(ADR-003). It builds on the MVP-6 verified-session + Admin-SDK boundary.
+
+### Decision
+
+- **Provider:** OpenAI **Responses API** via the official `openai` Node SDK,
+  **server-side only**. Not a ChatGPT custom GPT.
+- **Model:** configurable via `OPENAI_MODEL`; default the current recommended
+  low-cost structured-output model (**`gpt-5.4-mini`** at implementation time —
+  verify against OpenAI's available models). If a configured model is
+  unavailable, the call fails and the UI shows a friendly localised error.
+- **Structured output:** a `zod` schema (`AssistantAnswer`) enforced via Structured
+  Outputs (`responses.parse` + `zodTextFormat`). The server validates it and
+  **forces `groundedIn.planId`** to the actually-loaded plan. Raw model text is
+  never returned.
+- **Route:** `POST /api/assistant` (Node runtime): same-origin check → verify
+  session cookie → `uid` from cookie only (never the body) → load the owned saved
+  plan via Admin SDK → build a **minimal `AssistantPlanContext`** → call OpenAI →
+  return `AssistantAnswer`. No saved plan → `{ noPlan: true }`, no OpenAI call.
+- **Audience:** professional-only, single-turn ask → answer. No streaming, no
+  history persistence (deferred).
+- **UI:** dedicated `/[locale]/professional/assistant`, linked from the builder.
+  A plan-helper card (not a generic chatbot) with a safety badge.
+- **Locale:** answer in `plan.language` (plans are authored in one language);
+  active UI locale is the fallback.
+- **Safety:** system instruction (server-only) enforces grounding + the
+  same-slot substitution rule; a structured `safetyLevel`
+  (`ok` / `needs_professional_review` / `refused`) drives the badge; deferrals
+  set `needs_professional_review`.
+- **Guards (no full rate limiter yet):** auth required, same-origin, max question
+  length (1000), `max_output_tokens` (700), no anonymous access, no streaming.
+
+### Consequences
+
+Positive: grounded, safe, localised assistant; reuses the verified session;
+structured output is reliable and validated server-side. Negative: a new server
+secret (`OPENAI_API_KEY`); each ask costs an OpenAI call; per-user rate limiting
+is still required before broader pilot use (known limitation).
+
+### Implications for future work
+
+- Per-user rate limiting before wider pilot.
+- Assistant history persistence (`nutritionists/{uid}/patients/{pid}/questions`)
+  as a separate flow.
+- Client-facing assistant only after client login exists.

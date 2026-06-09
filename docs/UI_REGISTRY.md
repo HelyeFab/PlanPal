@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 0.8
-Status: Reference baseline + implemented patterns (plan builder + auth + cloud save)
+Version: 0.9
+Status: Reference baseline + implemented patterns (plan builder + auth + cloud save + assistant)
 
 ## Purpose
 
@@ -296,6 +296,22 @@ Components live in `apps/web/components/`.
 - **AppShell `nav="minimal"`** — inner pages (e.g. the builder, sign-in) use the
   minimal header (logo links home + language switcher + `AccountMenu`, no section
   nav / CTA).
+
+### Assistant patterns (`components/assistant/`, route `/[locale]/professional/assistant`)
+
+- **AssistantPanel** (`assistant-panel.tsx`, client) — a focused **plan-helper**,
+  not a generic chatbot. Two columns on `lg`
+  (`grid lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]`): left = a `SectionCard`
+  with a `rounded-2xl` textarea (same field styling), a solid "Ask" pill
+  (`icon="✦"`, shows "Asking…" while loading), a disclaimer, and example-question
+  chips (`ActionPill variant="soft"`); right = a sticky answer aside.
+- **Answer card** — `safetyLevel` badge (`ok` → `bg-mint/15 text-mint`;
+  `needs_professional_review` → `bg-amber/15 text-amber`; `refused` →
+  `bg-muted/15 text-muted`), the answer (`whitespace-pre-wrap`), a "grounded in
+  your saved plan" caption, and follow-up question links (`text-brand`).
+- **States** — loading / empty (dashed hint) / no-plan (amber card) / error
+  (amber card), all localised. Single-turn (ask → answer); no chat history UI.
+- Linked from the builder header via `ActionPill localeHref="/professional/assistant"`.
 
 ### Auth patterns (`components/auth/`, route `/[locale]/sign-in`)
 

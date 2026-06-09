@@ -33,6 +33,8 @@ export type {
   AssistantPlanContext,
   AskAssistantRequest,
   AskAssistantResponse,
+  AssistantAnswer,
+  AssistantSafetyLevel,
 } from "./types/assistant";
 
 export type { SupportedLocale } from "./types/locale";

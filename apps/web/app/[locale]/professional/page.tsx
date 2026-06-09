@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 
 import { redirect } from "next/navigation";
 
+import { ActionPill } from "@/components/action-pill";
 import { AppShell } from "@/components/app-shell";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { ProfessionalPlanBuilder } from "@/components/professional/professional-plan-builder";
@@ -51,11 +52,22 @@ export default async function ProfessionalPage({ params }: PageProps) {
   return (
     <AppShell nav="minimal">
       <RequireAuth>
-        <header className="mb-6">
-          <h1 className="text-2xl font-bold text-ink sm:text-3xl">{t("title")}</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted sm:text-base">
-            {t("subtitle")}
-          </p>
+        <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-ink sm:text-3xl">
+              {t("title")}
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm text-muted sm:text-base">
+              {t("subtitle")}
+            </p>
+          </div>
+          <ActionPill
+            localeHref="/professional/assistant"
+            variant="soft"
+            icon="✦"
+          >
+            {t("openAssistant")}
+          </ActionPill>
         </header>
         <ProfessionalPlanBuilder locale={locale} initialState={initialState} />
       </RequireAuth>
