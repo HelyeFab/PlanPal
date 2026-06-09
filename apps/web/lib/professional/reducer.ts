@@ -56,6 +56,7 @@ export type BuilderAction =
   | { type: "hydrate"; state: BuilderState }
   | { type: "reset"; state: BuilderState }
   | { type: "setNutritionistId"; uid: string }
+  | { type: "setIds"; patientId: string; planId: string }
   | { type: "setClient"; patch: Partial<BuilderState["client"]> }
   | { type: "setPreferredLanguage"; language: SupportedLocale }
   | { type: "setPlan"; patch: Partial<BuilderPlan> }
@@ -108,6 +109,13 @@ export function builderReducer(
 
     case "setNutritionistId":
       return { ...state, nutritionistId: action.uid };
+
+    case "setIds":
+      return {
+        ...state,
+        patientId: action.patientId,
+        planId: action.planId,
+      };
 
     case "setClient":
       return { ...state, client: { ...state.client, ...action.patch } };

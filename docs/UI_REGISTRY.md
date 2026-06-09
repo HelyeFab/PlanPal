@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 0.7
-Status: Reference baseline + implemented patterns (plan builder + auth)
+Version: 0.8
+Status: Reference baseline + implemented patterns (plan builder + auth + cloud save)
 
 ## Purpose
 
@@ -269,6 +269,13 @@ Components live in `apps/web/components/`.
   border border-line bg-surface p-5 shadow-soft`, heading + optional subtitle +
   optional header action (e.g. an "Add" pill). `RemoveButton` is the round `×`
   control for repeatable rows.
+- **Save toolbar** — the builder toolbar leads with a solid **Save** pill
+  (`ActionPill variant="solid" icon="☁"`) + an inline status text
+  (`text-xs font-medium`): `text-mint` when Saved, `text-muted` for "Unsaved
+  changes", `text-amber` on error, "Saving…" while in flight. A `flex-1` spacer
+  pushes Load example / Clear to the right. Save status derives from a `lastSaved`
+  snapshot vs the current state (dirty check) — kept in reducer state (not a ref)
+  so it is readable during render.
 - **Builder layout** — two columns on `lg`:
   `grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]`. Left column = stacked builder
   cards (`flex flex-col gap-5`); right column = `aside` that is

@@ -239,7 +239,15 @@
       "invalid": "Incorrect email or password.",
       "tooMany": "Too many attempts. Please try again later.",
       "network": "Network error. Check your connection.",
+      "session": "Signed in, but couldn't start a secure session. Please try again.",
       "generic": "Could not sign in. Please try again."
     }
+  },
+  "cloud": {
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "unsaved": "Unsaved changes",
+    "error": "Couldn't save. Try again."
   }
 }

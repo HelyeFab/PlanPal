@@ -2,7 +2,49 @@
 
 Last updated: 2026-06-08
 
-## Latest: Professional Firebase Auth (MVP-5)
+## Latest: Cloud persistence (MVP-6)
+
+The first cloud writes + the real server security boundary (docs/MVP_6_CLOUD_PERSISTENCE.md, ADR-011).
+
+- **Route added:** `POST/DELETE /api/auth/session`, `GET/PUT /api/plan` (Node runtime);
+  `/[locale]/professional` is now **server-gated** (`force-dynamic`, cookie verify → redirect).
+- **Flow:** sign-in mints an **httpOnly session cookie** (ID token → `createSessionCookie`,
+  verified with Admin SDK); `nutritionistId` = **verified-cookie UID**, never client-supplied.
+  Save/load the current plan under `nutritionists/{uid}/patients/{pid}/plans/{planId}/meals/slots`.
+- **Persistence:** explicit **Save** button + **load-on-mount**; localStorage stays an
+  offline buffer; cloud is source of truth. `PUT` upserts the tree **and deletes
+  removed meals/slots** (no zombies; removed-meal slots deleted explicitly). Server
+  **validates/whitelists** every write (`firestore-mapping.ts`). One patient/plan per pro (MVP).
+- **Rules:** `firestore.rules` (deny-by-default + `request.auth.uid == nutritionistId`) +
+  `firebase.json`. Must be deployed. CSRF: SameSite=Lax + same-origin Origin check.
+- **Secrets:** first real server secret = Admin **service account**
+  (`FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY`) — server-only, gitignored, host-env in prod.
+
+New files: `app/api/auth/session/route.ts`, `app/api/plan/route.ts`,
+`lib/auth/server-session.ts`, `lib/professional/{firestore-mapping,cloud}.ts`,
+`firestore.rules`, `firebase.json`. Modified: professional page (server gate),
+sign-in form (mint cookie), account-menu (clear cookie), builder (save/load + save-state),
+`lib/professional/{types,reducer,example-plan,storage}.ts` (patientId/planId),
+`messages/{en,it}.json` (cloud namespace + auth.errors.session). Docs: ADR-011,
+SECURITY_BOUNDARIES (boundary implemented), MVP_6, UI_REGISTRY v0.8, report folder.
+
+**Checks:** typecheck ✓ · lint ✓ · build ✓ (APIs + professional dynamic, home SSG).
+Outputs in `docs/reports/mvp-6-cloud-persistence/`.
+
+**Setup needed to run:** enable Firestore (Native), add a service-account key to
+`apps/web/.env.local`, deploy `firestore.rules`. Until then the professional page
+shows the "not configured" notice and APIs return 503. End-to-end manual test
+(save→reload→load→remove→save→reload→sign-out) needs that setup.
+
+**Known limitations:** single current plan; explicit save only (no autosave);
+needs service account + deployed rules; localStorage buffer is per-browser.
+
+**Next recommended flow:** the AI assistant route (MVP_3) — server-side, reusing the
+verified session + Admin SDK to build plan context and answer grounded questions.
+
+---
+
+## Professional Firebase Auth (MVP-5)
 
 Professional sign-in is implemented (docs/MVP_5_PROFESSIONAL_AUTH.md, ADR-010).
 

@@ -66,10 +66,18 @@ export type BuilderState = {
   /**
    * Owner of this plan = the authenticated professional's Firebase Auth UID
    * (nutritionistId, see ADR-010). Empty until a professional is signed in;
-   * the builder stamps the live UID. Future Firestore writes go to
-   * nutritionists/{nutritionistId}.
+   * the builder stamps the live UID. The server NEVER trusts this for ownership
+   * (it uses the verified session-cookie UID) — it is local context only.
    */
   nutritionistId: string;
+  /**
+   * Stable Firestore document ids for the single current patient/plan
+   * (ADR-011). Empty until the first cloud save mints them; set from Firestore
+   * on load. Used for deterministic upsert at
+   * nutritionists/{uid}/patients/{patientId}/plans/{planId}.
+   */
+  patientId: string;
+  planId: string;
   client: BuilderClient;
   preferredLanguage: SupportedLocale;
   plan: BuilderPlan;

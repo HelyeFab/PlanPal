@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// PlanPal Firestore security rules (ADR-011, docs/SECURITY_BOUNDARIES.md).
+//
+// Deny by default. A professional may read/write ONLY their own subtree, keyed
+// by their Firebase Auth UID == nutritionistId. The app's server routes use the
+// Admin SDK (which bypasses these rules); these rules are the defence-in-depth
+// boundary against any direct/accidental client-SDK access.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /nutritionists/{nutritionistId}/{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == nutritionistId;
+    }
+  }
+}

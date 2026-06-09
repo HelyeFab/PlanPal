@@ -9,6 +9,7 @@ import { MealBuilder } from "./meal-builder";
 import { PlanDetailsCard } from "./plan-details-card";
 import { ActionPill } from "../action-pill";
 import { useAuth } from "../auth/auth-provider";
+import { loadPlanFromCloud, savePlanToCloud } from "@/lib/professional/cloud";
 import {
   createEmptyState,
   createExamplePlan,
@@ -21,6 +22,8 @@ import {
 } from "@/lib/professional/storage";
 import type { BuilderState } from "@/lib/professional/types";
 import type { SupportedLocale } from "@planpal/shared";
+
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 type Props = {
   locale: SupportedLocale;
@@ -60,21 +63,48 @@ function BuilderSkeleton() {
 export function ProfessionalPlanBuilder({ locale, initialState }: Props) {
   const t = useTranslations("builder");
   const tv = useTranslations("builder.validation");
+  const tc = useTranslations("cloud");
 
   const { user } = useAuth();
   const [state, dispatch] = useReducer(builderReducer, initialState);
-  // Mount flag via useReducer (dispatch in an effect is fine; setState is not).
+  // Mount flag + save status via useReducer (dispatch in an effect is fine;
+  // setState in an effect is not, per the lint rule).
   const [ready, markReady] = useReducer(() => true, false);
+  const [saveStatus, setSaveStatus] = useReducer(
+    (_prev: SaveStatus, next: SaveStatus) => next,
+    "idle",
+  );
+  // JSON of the last cloud-saved (or cloud-loaded) state, for the dirty check.
+  // Kept in reducer state (not a ref) so it can be read during render.
+  const [lastSaved, setLastSaved] = useReducer(
+    (_prev: string | null, next: string | null) => next,
+    null,
+  );
 
-  // Restore a saved draft (if any) before showing the interactive builder.
+  // Load the saved plan from the cloud (source of truth); fall back to the
+  // localStorage draft, then the seed. Runs once after mount (user is present
+  // because RequireAuth gates this component).
   useEffect(() => {
-    const saved = loadBuilderState();
-    if (saved) dispatch({ type: "hydrate", state: saved });
-    markReady();
-  }, []);
+    let cancelled = false;
+    void (async () => {
+      const cloud = user ? await loadPlanFromCloud() : null;
+      if (cancelled) return;
+      if (cloud) {
+        dispatch({ type: "hydrate", state: cloud });
+        setLastSaved(JSON.stringify(cloud));
+        setSaveStatus("saved");
+      } else {
+        const local = loadBuilderState();
+        if (local) dispatch({ type: "hydrate", state: local });
+      }
+      markReady();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
-  // Persist on every change, but only once the draft has been restored so we
-  // never clobber a saved draft with the initial seed.
+  // Keep the localStorage buffer in sync (offline safety) once restored.
   useEffect(() => {
     if (!ready) return;
     saveBuilderState(state);
@@ -103,9 +133,61 @@ export function ProfessionalPlanBuilder({ locale, initialState }: Props) {
   );
   if (hasUnnamedOption) issues.push(tv("optionName"));
 
+  const dirty =
+    lastSaved !== null && JSON.stringify(state) !== lastSaved;
+  const statusLabel =
+    saveStatus === "saving"
+      ? tc("saving")
+      : saveStatus === "error"
+        ? tc("error")
+        : saveStatus === "saved"
+          ? dirty
+            ? tc("unsaved")
+            : tc("saved")
+          : null;
+
+  async function handleSave() {
+    if (!user || saveStatus === "saving") return;
+    // Mint stable Firestore ids on first save (client-generated, namespaced
+    // under the professional's UID server-side).
+    let toSave = state;
+    if (!toSave.patientId || !toSave.planId) {
+      const patientId = toSave.patientId || `patient_${crypto.randomUUID()}`;
+      const planId = toSave.planId || `plan_${crypto.randomUUID()}`;
+      dispatch({ type: "setIds", patientId, planId });
+      toSave = { ...toSave, patientId, planId };
+    }
+    setSaveStatus("saving");
+    const res = await savePlanToCloud(toSave);
+    if (res.ok) {
+      setLastSaved(JSON.stringify(toSave));
+      setSaveStatus("saved");
+    } else {
+      setSaveStatus("error");
+    }
+  }
+
   return (
     <div>
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <ActionPill variant="solid" icon="☁" onClick={handleSave}>
+          {saveStatus === "saving" ? tc("saving") : tc("save")}
+        </ActionPill>
+        {statusLabel ? (
+          <span
+            className={`text-xs font-medium ${
+              saveStatus === "error"
+                ? "text-amber"
+                : dirty
+                  ? "text-muted"
+                  : "text-mint"
+            }`}
+            role="status"
+          >
+            {statusLabel}
+          </span>
+        ) : null}
+        <span className="flex-1" />
         <ActionPill
           variant="soft"
           onClick={() => dispatch({ type: "reset", state: createExamplePlan(locale) })}

@@ -30,10 +30,19 @@ export function loadBuilderState(): BuilderState | null {
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     if (!isBuilderState(parsed)) return null;
-    // Coerce drafts saved before `nutritionistId` existed; the builder restamps
-    // it from the signed-in UID anyway.
-    const draft = parsed as BuilderState & { nutritionistId?: string };
-    return { ...draft, nutritionistId: draft.nutritionistId ?? "" };
+    // Coerce drafts saved before `nutritionistId`/`patientId`/`planId` existed;
+    // the builder restamps the UID and the ids come from the first cloud save.
+    const draft = parsed as BuilderState & {
+      nutritionistId?: string;
+      patientId?: string;
+      planId?: string;
+    };
+    return {
+      ...draft,
+      nutritionistId: draft.nutritionistId ?? "",
+      patientId: draft.patientId ?? "",
+      planId: draft.planId ?? "",
+    };
   } catch {
     return null;
   }

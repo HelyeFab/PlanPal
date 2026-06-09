@@ -514,3 +514,64 @@ the persistence flow; accounts are created manually; local dev needs real config
   Firestore rules `request.auth.uid == nutritionistId` under `nutritionists/{uid}`.
 - Self-service sign-up, Google auth, and password reset remain deferred, separate
   decisions.
+
+---
+
+## ADR-011: Cloud persistence — server route handlers + session cookie + Admin SDK + Firestore rules
+
+Date: 2026-06-08
+Status: Accepted
+
+### Context
+
+The plan builder was localStorage-only (ADR-009) and the professional area was
+protected by a client-side UX gate only (ADR-010). MVP-6 introduces the first
+cloud writes, which require a real server security boundary.
+
+### Decision
+
+- **Access path:** all reads/writes go through **Next.js Route Handlers (Node
+  runtime) using the Firebase Admin SDK**, never direct client-SDK writes.
+  `GET/PUT /api/plan`, `POST/DELETE /api/auth/session`.
+- **Session:** on sign-in the client exchanges its Firebase **ID token** for an
+  **httpOnly, SameSite=Lax session cookie** (`createSessionCookie`); Secure only
+  in production. Verified server-side with `verifySessionCookie`. Sign-out clears
+  it. This is the real boundary (ADR-010's client gate stays for UX only).
+- **Ownership:** the `nutritionistId` is the **UID from the verified cookie**,
+  never a client-supplied value. Writes go to
+  `nutritionists/{uid}/patients/{patientId}/plans/{planId}/meals/{mealId}/slots/{slotId}`
+  (MVP_2; options embedded per ADR-004).
+- **Firestore Security Rules** (`firestore.rules`) deny-by-default and allow only
+  `request.auth.uid == nutritionistId` — defence-in-depth (Admin bypasses rules;
+  these lock out any direct/accidental client-SDK access).
+- **Save model:** explicit **Save** button + **load-on-mount** (no autosave).
+  localStorage remains an offline buffer; the cloud is the source of truth.
+- **Whole-tree upsert with deletion:** PUT reads the existing meals/slots and, in
+  one batch, upserts submitted docs and **deletes meals/slots no longer present**
+  (Firestore does not cascade — removed-meal slots are deleted explicitly). No
+  zombie documents.
+- **Validation:** the server whitelists/validates the incoming draft
+  (`validateBuilderState`) before writing — known fields only, enum values
+  checked — so arbitrary client JSON is never persisted.
+- **Scope:** one current patient + plan per professional. Multi-client/multi-plan
+  deferred.
+- **CSRF:** SameSite=Lax + a same-origin `Origin` check on mutation routes (no
+  explicit CSRF token this pass).
+- **Secrets:** introduces the first real server secret — the Admin
+  **service-account** (`FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY`),
+  server-only, gitignored, host-env in production.
+
+### Consequences
+
+Positive: real ownership boundary; durable plans; clean path to the assistant
+route (which reuses the verified session). Negative: requires a service-account
+key; two auth representations (client session + server cookie) kept in sync on
+sign-in/out; whole-tree upsert re-reads the (small) tree per save.
+
+### Implications for future work
+
+- The assistant route and any future server data access reuse
+  `getCurrentNutritionistId()` + Admin SDK.
+- `firestore.rules` must be deployed (Console or `firebase deploy --only
+  firestore:rules`).
+- Multi-plan, debounced autosave, and real-time sync are later, separate flows.

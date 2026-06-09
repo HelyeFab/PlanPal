@@ -190,17 +190,25 @@ It is acceptable **only because**, right now:
 - the plan builder is localStorage-only (per-browser),
 - no cloud data is exposed.
 
-### Required before any cloud persistence (the real boundary)
+### The real boundary — IMPLEMENTED in MVP-6 (ADR-011)
 
-The Firestore persistence flow MUST add, together:
+Cloud persistence ships with the real server boundary, all three layers:
 
-1. A session cookie minted from the Firebase ID token.
-2. Server-side verification with the Firebase **Admin SDK** (in `proxy.ts` or
-   route handlers) before any read/write.
-3. Firestore security rules enforcing `request.auth.uid == nutritionistId` for
-   everything under `nutritionists/{uid}`.
+1. ✅ **Session cookie** minted from the Firebase ID token (httpOnly,
+   SameSite=Lax, Secure in prod) — `lib/auth/server-session.ts`.
+2. ✅ **Server-side verification** with the Firebase **Admin SDK**
+   (`verifySessionCookie`) before any read/write, in the **route handlers**
+   (`/api/plan`, `/api/auth/session`) **and** as a **server gate on the
+   professional page**. The `nutritionistId` is the verified-cookie UID — never
+   a client-supplied value.
+3. ✅ **Firestore security rules** (`firestore.rules`) deny-by-default + allow
+   only `request.auth.uid == nutritionistId` under `nutritionists/{uid}`
+   (defence-in-depth; Admin SDK bypasses rules, so these lock out direct
+   client-SDK access). **Must be deployed** to the Firebase project.
 
-Do not treat the client gate as sufficient once private data is involved.
+The client `RequireAuth` remains a UX gate only. CSRF is mitigated by
+SameSite=Lax + a same-origin `Origin` check on mutation routes (no token yet).
+All data writes are validated/whitelisted server-side before persisting.
 
 ### Secrets
 

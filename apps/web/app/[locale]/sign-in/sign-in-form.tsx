@@ -1,6 +1,6 @@
 "use client";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
@@ -39,7 +39,25 @@ export function SignInForm({ from }: Props) {
     setSubmitting(true);
     setErrorKey(null);
     try {
-      await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
+      const credential = await signInWithEmailAndPassword(
+        getFirebaseAuth(),
+        email,
+        password,
+      );
+      // Exchange the ID token for a server session cookie (the real boundary).
+      const idToken = await credential.user.getIdToken();
+      const sessionRes = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+      if (!sessionRes.ok) {
+        // No server session → keep client/server state consistent and report.
+        await signOut(getFirebaseAuth());
+        setErrorKey("session");
+        setSubmitting(false);
+        return;
+      }
       router.replace(destination);
     } catch (error) {
       setErrorKey(firebaseErrorKey(error));

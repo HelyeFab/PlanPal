@@ -3,13 +3,20 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import { redirect } from "next/navigation";
+
 import { AppShell } from "@/components/app-shell";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { ProfessionalPlanBuilder } from "@/components/professional/professional-plan-builder";
+import { getCurrentNutritionistId } from "@/lib/auth/server-session";
+import { isFirebaseAdminConfigured } from "@/lib/env";
 import { routing } from "@/i18n/routing";
 import { createExamplePlan } from "@/lib/professional/example-plan";
 
 type PageProps = { params: Promise<{ locale: string }> };
+
+// Per-professional, cookie-gated page — never statically prerendered.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -25,6 +32,16 @@ export default async function ProfessionalPage({ params }: PageProps) {
     notFound();
   }
   setRequestLocale(locale);
+
+  // Real server gate: when Admin is configured, require a valid session cookie.
+  // When it isn't (local dev without a service account), fall through so the
+  // client RequireAuth can show the localised "not configured" notice instead.
+  if (isFirebaseAdminConfigured()) {
+    const uid = await getCurrentNutritionistId();
+    if (!uid) {
+      redirect(`/${locale}/sign-in?from=/professional`);
+    }
+  }
 
   const t = await getTranslations("builder");
   // First-visit seed: a populated example authored in the active locale so the

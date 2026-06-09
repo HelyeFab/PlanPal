@@ -22,6 +22,8 @@ export function AccountMenu() {
 
   async function handleSignOut() {
     await signOut(getFirebaseAuth());
+    // Clear the server session cookie too.
+    await fetch("/api/auth/session", { method: "DELETE" });
     router.replace("/sign-in");
   }
 
