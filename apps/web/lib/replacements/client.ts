@@ -2,13 +2,62 @@
  * Client wrapper for POST /api/replacements (MVP-8b). Thin fetch helper; all
  * deterministic classification + ownership enforcement happens server-side.
  */
-import type { ReplacementResult } from "@planpal/shared";
+import type {
+  FoodRole,
+  FoodUnit,
+  NutritionalProfile,
+  ReplacementClassification,
+  ReplacementConfidence,
+  ReplacementResult,
+  ReplacementSource,
+} from "@planpal/shared";
 
 export type ReplacementSearch = {
   mealId: string;
   foodSlotId: string;
   optionId?: string;
 };
+
+export type ApprovalPayload = {
+  mealId: string;
+  foodSlotId: string;
+  option: {
+    foodName: string;
+    quantity: number | "";
+    unit: FoodUnit;
+    notes: string;
+    role?: FoodRole;
+    nutrition?: NutritionalProfile;
+    replacementGroupId?: string;
+  };
+  provenance: {
+    source: ReplacementSource;
+    classification: ReplacementClassification;
+    confidence: ReplacementConfidence;
+  };
+};
+
+export type ApprovalResult = "ok" | "duplicate" | "error";
+
+export async function approveReplacement(
+  payload: ApprovalPayload,
+): Promise<ApprovalResult> {
+  try {
+    const res = await fetch("/api/replacements/approve", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) return "error";
+    const data: unknown = await res.json();
+    if (data && typeof data === "object" && (data as { duplicate?: unknown }).duplicate === true) {
+      return "duplicate";
+    }
+    return "ok";
+  } catch {
+    return "error";
+  }
+}
 
 export type ReplacementApiResult =
   | { kind: "result"; result: ReplacementResult }

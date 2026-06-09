@@ -2,7 +2,51 @@
 
 Last updated: 2026-06-09
 
-## Latest: MVP-8b — Deterministic replacement engine + results UI (DONE; stop before MVP-9)
+## Latest: MVP-9 — Professional review & approval of replacements (DONE; stop before MVP-10)
+
+The professional reviews a deterministic candidate (MVP-8b) and approves it into
+the plan (docs/MVP_9_PROFESSIONAL_REVIEW_APPROVAL.md, ADR-016). Professional-only;
+no patient access (MVP-10); no auto/bulk approval; no override of `not_suitable`.
+
+- **Model:** approved replacement = an ordinary `FoodOption` appended to the
+  original `FoodSlot` (no parallel model).
+- **API:** `POST /api/replacements/approve` (Node, same-origin, verified session,
+  uid from cookie only) — loads the owned plan, locates the slot, **de-dups by
+  normalised foodName** (`duplicate:true`, no overwrite), appends ONE option with
+  provenance, writes only the affected slot + `plan.updatedAt`. Focused endpoint,
+  NOT `PUT /api/plan` (avoids clobbering).
+- **Provenance:** `FoodOption.approvedFromCandidate?{source,classification,
+  confidence,approvedAt}` — additive/optional, not editable in the option editor,
+  **preserved by firestore-mapping + later builder saves** (plumbed through
+  validate/write/read).
+- **Engine enrichment:** candidates now carry scaled `nutrition`/`role`/
+  `replacementGroupId` so the approval modal pre-fills.
+- **UI:** Needs-review candidates get an **"Approve"** pill → a review/edit
+  **modal** (first modal pattern — quantity/unit/role/macros/notes editable +
+  safety line); approved → "Already approved" chip; not_suitable → no CTA. After
+  approval the search re-runs (server truth).
+
+New: `app/api/replacements/approve/route.ts`, `lib/replacements/approve.ts`,
+`components/replacements/approve-replacement-modal.tsx`. Modified: shared
+`replacement.ts` (candidate nutrition/role/groupId + `ApprovedFromCandidate`,
+`ReplacementSource`), `meal-plan.ts` (FoodOption.approvedFromCandidate),
+`lib/replacements/{engine,client}.ts`, `lib/professional/{types,firestore-mapping}.ts`
+(provenance passthrough), `replacement-tester.tsx`, messages, docs (ADR-016,
+MVP_9, MVP_8 status, UI_REGISTRY v1.2, SECURITY_BOUNDARIES).
+
+**Checks:** typecheck ✓ · lint ✓ · build ✓ (`/api/replacements/approve`). EN/IT parity 309=309.
+**Live-verified (isolated test UID, cleaned up) — 11/11:** approve nutritionally_similar
+→ becomes approved FoodOption; re-run shows approved; edited quantity/role/macros persist;
+isDefault false; provenance recorded + survives a builder save; duplicate→duplicate:true;
+guards 401/403. Outputs in `docs/reports/mvp-9-professional-review-approval/`.
+
+**Next: MVP-10 — Patient access + patient assistant** (patient login/access mapping +
+careful patient-facing assistant exposing ONLY approved options). Do NOT start until
+MVP-9 is reviewed. Needs its own architect blueprint.
+
+---
+
+## MVP-8b — Deterministic replacement engine + results UI (DONE)
 
 Second pass of MVP-8 (ADR-013/014/015). The deterministic engine + results UI on
 the 8a foundation. **No OpenAI in classification; no approval (MVP-9); nothing

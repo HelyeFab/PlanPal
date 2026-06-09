@@ -10,6 +10,7 @@
  * shared types, so this state maps cleanly onto Firestore later (ADR-009).
  */
 import type {
+  ApprovedFromCandidate,
   FoodCategory,
   FoodRole,
   FoodUnit,
@@ -47,6 +48,9 @@ export type BuilderOption = {
   role?: FoodRole;
   nutrition?: BuilderNutrition;
   replacementGroupId?: string;
+  // Provenance when approved from a candidate (MVP-9). Read-only passthrough —
+  // not edited in the option editor, but preserved across builder saves.
+  approvedFromCandidate?: ApprovedFromCandidate;
 };
 
 export type BuilderSlot = {

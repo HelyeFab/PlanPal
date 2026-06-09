@@ -11,6 +11,7 @@ import { FOOD_CATEGORIES, FOOD_UNITS, MEAL_NAMES } from "./enums";
 import { EMPTY_NUTRITION, type BuilderNutrition, type BuilderState } from "./types";
 import { FOOD_ROLES } from "@planpal/shared";
 import type {
+  ApprovedFromCandidate,
   FoodCategory,
   FoodRole,
   FoodUnit,
@@ -26,6 +27,20 @@ const MEALS = new Set<string>(MEAL_NAMES);
 const CATEGORIES = new Set<string>(FOOD_CATEGORIES);
 const UNITS = new Set<string>(FOOD_UNITS);
 const ROLES = new Set<string>(FOOD_ROLES);
+const SOURCES = new Set<string>([
+  "approved_option",
+  "replacement_group",
+  "same_role",
+  "nutrition_database",
+  "model_suggestion",
+]);
+const CLASSIFICATIONS = new Set<string>([
+  "approved",
+  "nutritionally_similar",
+  "needs_professional_review",
+  "not_suitable",
+]);
+const CONFIDENCES = new Set<string>(["low", "medium", "high"]);
 
 const MACRO_KEYS = [
   "calories",
@@ -43,10 +58,11 @@ type StoredOption = {
   unit: FoodUnit;
   notes: string;
   isDefault: boolean;
-  // Optional replacement-engine metadata (MVP-8). Omitted when unset.
+  // Optional replacement-engine metadata (MVP-8/9). Omitted when unset.
   role?: FoodRole;
   nutrition?: NutritionalProfile;
   replacementGroupId?: string;
+  approvedFromCandidate?: ApprovedFromCandidate;
 };
 
 export type PlanTreeDocs = {
@@ -127,6 +143,27 @@ function profileToBuilderNutrition(v: unknown): BuilderNutrition | undefined {
   const n: BuilderNutrition = { ...EMPTY_NUTRITION };
   for (const key of MACRO_KEYS) n[key] = numOrBlank(v[key]);
   return MACRO_KEYS.some((k) => n[k] !== "") ? n : undefined;
+}
+
+/** Validate/whitelist approval provenance (MVP-9), or undefined. */
+function validateProvenance(v: unknown): ApprovedFromCandidate | undefined {
+  if (!isObject(v)) return undefined;
+  const source = str(v.source);
+  const classification = str(v.classification);
+  const confidence = str(v.confidence);
+  if (
+    !SOURCES.has(source) ||
+    !CLASSIFICATIONS.has(classification) ||
+    !CONFIDENCES.has(confidence)
+  ) {
+    return undefined;
+  }
+  return {
+    source: source as ApprovedFromCandidate["source"],
+    classification: classification as ApprovedFromCandidate["classification"],
+    confidence: confidence as ApprovedFromCandidate["confidence"],
+    approvedAt: str(v.approvedAt),
+  };
 }
 
 type ValidationResult =
@@ -210,6 +247,7 @@ export function validateBuilderState(input: unknown): ValidationResult {
         const nutrition = parseNutrition(rawOption.nutrition);
         const replacementGroupId =
           str(rawOption.replacementGroupId).trim() || undefined;
+        const provenance = validateProvenance(rawOption.approvedFromCandidate);
         options.push({
           id: str(rawOption.id) || crypto.randomUUID(),
           foodName: str(rawOption.foodName),
@@ -220,6 +258,7 @@ export function validateBuilderState(input: unknown): ValidationResult {
           ...(role ? { role } : {}),
           ...(nutrition ? { nutrition } : {}),
           ...(replacementGroupId ? { replacementGroupId } : {}),
+          ...(provenance ? { approvedFromCandidate: provenance } : {}),
         });
       }
 
@@ -317,6 +356,9 @@ export function builderStateToDocs(
           if (option.replacementGroupId) {
             stored.replacementGroupId = option.replacementGroupId;
           }
+          if (option.approvedFromCandidate) {
+            stored.approvedFromCandidate = option.approvedFromCandidate;
+          }
           return stored;
         }),
       })),
@@ -369,6 +411,7 @@ export function docsToBuilderState(
               const role = validRole(o.role);
               const nutrition = profileToBuilderNutrition(o.nutrition);
               const replacementGroupId = str(o.replacementGroupId) || undefined;
+              const provenance = validateProvenance(o.approvedFromCandidate);
               return {
                 id: str(o.id),
                 foodName: str(o.foodName),
@@ -379,6 +422,7 @@ export function docsToBuilderState(
                 ...(role ? { role } : {}),
                 ...(nutrition ? { nutrition } : {}),
                 ...(replacementGroupId ? { replacementGroupId } : {}),
+                ...(provenance ? { approvedFromCandidate: provenance } : {}),
               };
             })
           : [],

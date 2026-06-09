@@ -15,7 +15,11 @@ Status: MVP-8 IMPLEMENTED (8a data foundation + 8b deterministic engine)
 >   `/[locale]/professional/replacements` tester + grouped results, and the
 >   "Find replacements" entry point on each food option. No OpenAI in classification.
 >
-> **Not yet:** approval into the plan (MVP-9) and any patient-facing surface (MVP-10).
+> **MVP-9 (DONE, ADR-016):** the professional can review/edit a candidate and
+> approve it — it becomes an approved `FoodOption` in the slot (with provenance).
+> See `docs/MVP_9_PROFESSIONAL_REVIEW_APPROVAL.md`.
+>
+> **Not yet:** any patient-facing surface (MVP-10).
 > The sections below remain the spec for the whole of MVP-8.
 
 ## Product goal

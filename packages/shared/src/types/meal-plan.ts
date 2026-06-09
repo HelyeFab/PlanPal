@@ -8,6 +8,7 @@
 
 import type { SupportedLocale } from "./locale";
 import type { FoodRole, NutritionalProfile } from "./nutrition";
+import type { ApprovedFromCandidate } from "./replacement";
 
 /** Lifecycle of a plan. Only one plan should be `active` per patient. */
 export type PlanStatus = "draft" | "active" | "archived";
@@ -68,6 +69,8 @@ export type FoodOption = {
   nutrition?: NutritionalProfile;
   role?: FoodRole;
   replacementGroupId?: string;
+  /** Provenance when this option was approved from a replacement candidate (MVP-9). */
+  approvedFromCandidate?: ApprovedFromCandidate;
 };
 
 /**

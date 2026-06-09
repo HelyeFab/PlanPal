@@ -49,8 +49,10 @@ export type {
   ReplacementTolerance,
   ReplacementGroupMember,
   ReplacementGroup,
+  ReplacementSource,
   FoodReplacementRequest,
   FoodReplacementCandidate,
+  ApprovedFromCandidate,
   ReplacementResult,
 } from "./types/replacement";
 export {

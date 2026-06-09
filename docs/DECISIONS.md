@@ -801,3 +801,58 @@ professional widens tolerance per group when appropriate.
 - MVP-10: patient assistant exposes only approved replacements.
 - A later optional LLM layer may *explain* the deterministic result; it must never
   change the classification.
+
+---
+
+## ADR-016: MVP-9 approval — focused endpoint, FoodOption append, provenance
+
+Date: 2026-06-09
+Status: Accepted
+
+### Context
+
+MVP-9 lets the professional review a deterministic candidate (MVP-8b) and approve
+it into the plan. Approval must not create a parallel model and must preserve the
+existing `MealPlan → Meal → FoodSlot → FoodOption` structure.
+
+### Decision
+
+- **Approved replacement = an ordinary `FoodOption` appended to the original
+  `FoodSlot`.** No parallel approval model.
+- **Focused endpoint `POST /api/replacements/approve`** (not `PUT /api/plan`):
+  the replacements tester does not own the full builder draft, and routing the
+  whole plan through PUT risks clobbering concurrent edits. The endpoint
+  server-loads the owned plan, locates the slot, de-dups, appends one option, and
+  writes only the affected slot doc + `plan.updatedAt`.
+- **Review-and-edit modal** before approval: the professional may adjust
+  `quantity / unit / role / macros / notes`. The server re-validates all edited
+  values.
+- **Provenance:** `FoodOption.approvedFromCandidate?: { source, classification,
+  confidence, approvedAt }` — additive/optional, **not** editable in the option
+  editor, **preserved by firestore-mapping and later builder saves** (server
+  stamps `approvedAt`). Reasons/cautions are transient and not persisted.
+- **Duplicates:** by normalised `foodName` within the target slot → no new option,
+  return `{ duplicate: true }`, UI shows "Already approved". No auto-overwrite.
+  (The engine already classifies in-slot foods as `approved`, so the Approve CTA
+  rarely targets a duplicate.)
+- **No Approve CTA for `not_suitable`** — MVP-9 is review/approval of plausible
+  candidates, not an override mechanism.
+- **After approval the UI re-runs the engine search** (server truth) so the
+  candidate moves under Approved.
+- **Security:** Node runtime; same-origin; verified session cookie; `uid` from the
+  cookie only; load only the owned plan; write only under `nutritionists/{uid}`;
+  validate the payload. No OpenAI.
+
+### Consequences
+
+Positive: approved replacements are ordinary plan options (simple for MVP-10
+patient logic); provenance gives auditability without a parallel model; the
+focused endpoint is atomic and avoids clobbering. Negative: a second write path
+(approve) alongside `PUT /api/plan` — both validated and owner-scoped.
+
+### Implications for future work
+
+- MVP-10 patient view/assistant reads approved options → approved replacements
+  appear automatically; provenance distinguishes origin.
+- An override flow for `not_suitable` (if ever needed) is a separate, more
+  explicit decision with stronger warnings.

@@ -276,3 +276,18 @@ boundary and adds AI-specific rules:
 - **Abuse guards (MVP).** Auth required, same-origin, max question length (1000),
   `max_output_tokens` (700), no anonymous access, no streaming. **Known
   limitation:** no per-user rate limiter yet — required before broader pilot use.
+
+---
+
+## Replacement approval (MVP-9 — ADR-016)
+
+`POST /api/replacements/approve` appends an approved `FoodOption` to an owned slot:
+
+- Node runtime; same-origin check + verified session cookie; `uid` (=
+  `nutritionistId`) from the cookie only, never the body.
+- Loads only the owned saved plan; writes only under
+  `nutritionists/{uid}/patients/.../slots/{id}` (+ `plan.updatedAt`); covered by
+  the deployed `request.auth.uid == nutritionistId` rules.
+- The payload is validated/whitelisted server-side (enums, numbers); provenance
+  `approvedAt` is server-stamped.
+- De-dups by normalised food name (no overwrite). No OpenAI, no new secret.

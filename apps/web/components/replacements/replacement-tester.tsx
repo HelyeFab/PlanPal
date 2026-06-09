@@ -1,8 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 
+import { ApproveReplacementModal } from "./approve-replacement-modal";
 import { ActionPill } from "../action-pill";
 import { SelectField } from "../professional/fields";
 import { SectionCard } from "../professional/section-card";
@@ -64,6 +65,11 @@ export function ReplacementTester({
     (_prev: ReplacementApiResult | null, next: ReplacementApiResult | null) => next,
     null,
   );
+  const [approveFor, setApproveFor] = useState<{
+    candidate: FoodReplacementCandidate;
+    mealId: string;
+    foodSlotId: string;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -118,6 +124,12 @@ export function ReplacementTester({
     setSearching(false);
   }
 
+  function openApprove(candidate: FoodReplacementCandidate) {
+    const flat = options.find((o) => o.key === selected);
+    if (!flat) return;
+    setApproveFor({ candidate, mealId: flat.mealId, foodSlotId: flat.foodSlotId });
+  }
+
   if (phase === "loading") {
     return <div className="h-40 animate-pulse rounded-card border border-line bg-surface" />;
   }
@@ -148,6 +160,7 @@ export function ReplacementTester({
   const confidenceLabel = (c: ReplacementConfidence) => tcfg(c);
 
   return (
+    <>
     <SectionCard title={t("findTitle")} subtitle={t("findSubtitle")}>
       <div className="flex flex-wrap items-end gap-2">
         <div className="min-w-0 flex-1">
@@ -217,6 +230,22 @@ export function ReplacementTester({
                         {c.classification !== "approved" ? (
                           <p className="mt-1 text-xs text-faint">{t("candidateNote")}</p>
                         ) : null}
+                        {c.classification === "approved" ? (
+                          <span className="mt-2 inline-block rounded-pill bg-mint/15 px-2.5 py-0.5 text-[10px] font-semibold text-mint">
+                            {t("alreadyApproved")}
+                          </span>
+                        ) : c.classification !== "not_suitable" ? (
+                          <div className="mt-2">
+                            <ActionPill
+                              variant="soft"
+                              icon="✓"
+                              className="px-3 py-1.5"
+                              onClick={() => openApprove(c)}
+                            >
+                              {t("approve")}
+                            </ActionPill>
+                          </div>
+                        ) : null}
                       </li>
                     ))}
                   </ul>
@@ -232,5 +261,18 @@ export function ReplacementTester({
         )}
       </div>
     </SectionCard>
+      {approveFor ? (
+        <ApproveReplacementModal
+          candidate={approveFor.candidate}
+          mealId={approveFor.mealId}
+          foodSlotId={approveFor.foodSlotId}
+          onClose={() => setApproveFor(null)}
+          onApproved={() => {
+            setApproveFor(null);
+            void run();
+          }}
+        />
+      ) : null}
+    </>
   );
 }

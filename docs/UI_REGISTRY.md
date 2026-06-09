@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 1.1
-Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement engine)
+Version: 1.2
+Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement engine + approval modal)
 
 ## Purpose
 
@@ -314,6 +314,19 @@ Components live in `apps/web/components/`.
   professional review" note. States: loading / no-plan / insufficient-data /
   no-candidates / error. Deep-linkable via `?mealId&foodSlotId&optionId` from the
   builder's per-option "Find replacements" link (`food-option-editor.tsx`).
+- **Approval modal** (`approve-replacement-modal.tsx`, MVP-9) — the app's first
+  **modal pattern**: a fixed overlay `fixed inset-0 z-40 flex items-center
+  justify-center bg-ink/40 p-4` wrapping a `max-w-md` scrollable
+  `rounded-card border border-line bg-surface p-5 shadow-card` (`role="dialog"
+  aria-modal="true"`). Mount it only while open (so its `useState` initialises
+  from the item). Contents: title + item name, editable fields (the form
+  primitives), a `bg-brand-soft text-brand` safety line, an amber error line, and
+  a right-aligned Cancel (ghost) + Confirm (solid) pill row. Reuse this shape for
+  future modals.
+- **Candidate approval CTAs** (in `replacement-tester.tsx`) — Needs-review
+  candidates get an "Approve" soft pill (`icon="✓"`, opens the modal); approved
+  ones get an "Already approved" `bg-mint/15 text-mint` chip; not-suitable get no
+  CTA. After approval the search re-runs (server truth).
 - **Replacement group manager** (`components/replacements/`, route
   `/[locale]/professional/replacements`) — `ReplacementGroupManager` lists
   `GroupEditorCard`s (each a `SectionCard`): name, role, a 3-up tolerance grid

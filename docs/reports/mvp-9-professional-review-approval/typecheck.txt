@@ -1,0 +1,13 @@
+
+> planpal@0.0.0 typecheck
+> npm --workspace packages/shared run typecheck && npm --workspace apps/web run typecheck
+
+
+> @planpal/shared@0.0.0 typecheck
+> tsc --noEmit
+
+
+> @planpal/web@0.0.0 typecheck
+> tsc --noEmit
+
+exit: 0

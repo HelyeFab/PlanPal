@@ -69,6 +69,8 @@ type RawCandidate = {
   quantity?: number;
   unit?: string;
   nutrition: NutritionalProfile;
+  role: FoodRole;
+  replacementGroupId?: string;
   source: FoodReplacementCandidate["source"];
   sourceReason: string;
   tolerance: ReplacementTolerance;
@@ -124,6 +126,8 @@ export function findReplacements(
       quantity: o.quantity === "" ? undefined : o.quantity,
       unit: o.unit,
       nutrition: profileFromBuilder(o.nutrition),
+      role: o.role ?? categoryToDefaultRole(slot.category),
+      replacementGroupId: o.replacementGroupId,
       source: "approved_option",
       sourceReason: "approved_in_slot",
       tolerance: DEFAULT_REPLACEMENT_TOLERANCE,
@@ -142,6 +146,8 @@ export function findReplacements(
         quantity: m.quantity,
         unit: m.unit,
         nutrition: m.nutrition ?? {},
+        role: group.role,
+        replacementGroupId: group.id,
         source: "replacement_group",
         sourceReason: reason,
         tolerance: group.tolerance ?? DEFAULT_REPLACEMENT_TOLERANCE,
@@ -169,6 +175,8 @@ export function findReplacements(
           quantity: o.quantity === "" ? undefined : o.quantity,
           unit: o.unit,
           nutrition: profileFromBuilder(o.nutrition),
+          role: oRole,
+          replacementGroupId: o.replacementGroupId,
           source: "same_role",
           sourceReason: "same_role",
           tolerance: DEFAULT_REPLACEMENT_TOLERANCE,
@@ -212,6 +220,9 @@ function classify(
       confidence: "high",
       reasons: ["approved_in_slot"],
       source: c.source,
+      nutrition: c.nutrition,
+      role: c.role,
+      replacementGroupId: c.replacementGroupId,
     };
   }
 
@@ -220,11 +231,11 @@ function classify(
   const candPrimary = num(c.nutrition[primaryKey]);
   if (originalPrimary === undefined) {
     reasons.push("missing_original_nutrition");
-    return finish(c, "needs_professional_review", "low", reasons, cautions, undefined);
+    return finish(c, "needs_professional_review", "low", reasons, cautions, undefined, c.nutrition);
   }
   if (candPrimary === undefined || candPrimary <= 0 || c.quantity === undefined) {
     reasons.push("missing_candidate_nutrition");
-    return finish(c, "needs_professional_review", "low", reasons, cautions, undefined);
+    return finish(c, "needs_professional_review", "low", reasons, cautions, undefined, c.nutrition);
   }
 
   // Scale the candidate to match the original's primary macro for the role.
@@ -285,16 +296,16 @@ function classify(
 
   if (grosslyOutside) {
     cautions.push("outside_tolerance");
-    return finish(c, "not_suitable", "low", reasons, cautions, suggestedQuantity);
+    return finish(c, "not_suitable", "low", reasons, cautions, suggestedQuantity, scaled);
   }
   if (mildlyOutside) {
-    return finish(c, "needs_professional_review", "medium", reasons, cautions, suggestedQuantity);
+    return finish(c, "needs_professional_review", "medium", reasons, cautions, suggestedQuantity, scaled);
   }
   const confidence: ReplacementConfidence =
     num(originalNutrition.calories) !== undefined && num(originalNutrition.fat) !== undefined
       ? "high"
       : "medium";
-  return finish(c, "nutritionally_similar", confidence, reasons, cautions, suggestedQuantity);
+  return finish(c, "nutritionally_similar", confidence, reasons, cautions, suggestedQuantity, scaled);
 }
 
 function finish(
@@ -304,6 +315,7 @@ function finish(
   reasons: string[],
   cautions: string[],
   suggestedQuantity: number | undefined,
+  nutrition: NutritionalProfile,
 ): FoodReplacementCandidate {
   const uniqueReasons = Array.from(new Set(reasons));
   const uniqueCautions = Array.from(new Set(cautions));
@@ -316,6 +328,9 @@ function finish(
     reasons: uniqueReasons,
     cautions: uniqueCautions.length > 0 ? uniqueCautions : undefined,
     source: c.source,
+    nutrition: Object.keys(nutrition).length > 0 ? nutrition : undefined,
+    role: c.role,
+    replacementGroupId: c.replacementGroupId,
   };
 }
 

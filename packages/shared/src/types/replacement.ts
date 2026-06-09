@@ -67,6 +67,14 @@ export type FoodReplacementRequest = {
   originalUnit?: string;
 };
 
+/** Where a candidate came from. */
+export type ReplacementSource =
+  | "approved_option"
+  | "replacement_group"
+  | "same_role"
+  | "nutrition_database"
+  | "model_suggestion";
+
 /** One classified candidate replacement (produced by MVP-8b). */
 export type FoodReplacementCandidate = {
   foodName: string;
@@ -76,12 +84,24 @@ export type FoodReplacementCandidate = {
   confidence: ReplacementConfidence;
   reasons: string[]; // reason codes, localised in the UI
   cautions?: string[];
-  source:
-    | "approved_option"
-    | "replacement_group"
-    | "same_role"
-    | "nutrition_database"
-    | "model_suggestion";
+  source: ReplacementSource;
+  // Resolved data so approval (MVP-9) can pre-fill a FoodOption. `nutrition` is
+  // scaled to `suggestedQuantity` when scaling was possible.
+  nutrition?: NutritionalProfile;
+  role?: FoodRole;
+  replacementGroupId?: string;
+};
+
+/**
+ * Provenance recorded on a FoodOption that was approved from a replacement
+ * candidate (MVP-9, ADR-016). Additive/optional; not editable in the normal
+ * option editor; preserved by firestore-mapping and later builder saves.
+ */
+export type ApprovedFromCandidate = {
+  source: ReplacementSource;
+  classification: ReplacementClassification;
+  confidence: ReplacementConfidence;
+  approvedAt: string;
 };
 
 /** Engine result (MVP-8b). `insufficientData` when no macros/groups support an answer. */
