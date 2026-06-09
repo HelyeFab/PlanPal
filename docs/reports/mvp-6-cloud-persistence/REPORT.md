@@ -65,17 +65,39 @@ explicitly — Firestore has no cascade). No zombie documents.
 | `npm run lint` | PASS (exit 0) | `lint.txt` |
 | `npm run build` | PASS (exit 0) — APIs + professional dynamic, home SSG | `build.txt` |
 
-Manual end-to-end (sign-in → cookie → save → reload → load → remove meal/slot →
-save → reload → confirm removed → sign-out clears cookie → signed-out redirect)
-requires the developer's service-account key configured locally.
+## Deployment & runtime verification (2026-06-09)
+
+The project is fully configured and the boundary is live on `planpal-11ff7`:
+
+- **Admin service account** wired into `apps/web/.env.local` (server-only,
+  gitignored; the `*-firebase-adminsdk-*.json` key file is also gitignored and
+  was never staged).
+- **`.firebaserc`** added (default project `planpal-11ff7`) — committed.
+- **Firestore rules deployed:** `firebase deploy --only firestore:rules` →
+  compiled successfully and released to cloud.firestore.
+- **Runtime checks (dev server, no session cookie):**
+  - `GET /api/plan` → **401** (Admin configured; previously 503 not-configured).
+  - `GET /it/professional` → **307** → `/it/sign-in?from=/professional`
+    (server-side cookie gate active).
+  - `GET /en/sign-in` → **200** (reachable).
+
+The interactive end-to-end (sign-in → cookie → Save → reload → load → remove
+meal/slot → Save → reload → confirm removed → sign-out → redirect) is now
+exercisable in the browser with a Console-provisioned professional account.
+
+### Security note
+While writing `.env.local`, the harness echoed the file (including the private
+key) into the session transcript. The key is gitignored and never committed, but
+if the transcript is shared the key should be rotated in the Firebase Console.
 
 ## Known limitations
 
 - One current patient/plan per professional (multi-plan deferred).
 - Explicit Save only (no autosave).
-- Needs the Admin service account + deployed rules to function; until then the
-  professional page shows the "not configured" notice and APIs return 503.
 - localStorage buffer is per-browser, not per-user.
+- Requires the Admin service account + deployed rules (now configured/deployed on
+  `planpal-11ff7`; elsewhere the page shows the "not configured" notice and the
+  APIs return 503 until set up).
 
 ## Next recommended flow
 
