@@ -135,6 +135,7 @@
     "clear": "Svuota tutto",
     "openAssistant": "Apri l'assistente",
     "openReplacements": "Sostituzioni",
+    "openPatientPreview": "Anteprima cliente",
     "findReplacements": "Trova sostituzioni",
     "client": {
       "heading": "Cliente",
@@ -390,6 +391,36 @@
       "carbohydrates": "Carboidrati (g)",
       "fat": "Grassi (g)",
       "fibre": "Fibre (g)"
+    }
+  },
+  "patientPreview": {
+    "title": "Il tuo piano",
+    "subtitle": "Un'anteprima di ciò che vede il tuo cliente. Tocca un alimento per scoprire le alternative.",
+    "previewBanner": "Anteprima cliente — è così che il tuo cliente vede il suo piano.",
+    "backToBuilder": "Torna all'editor",
+    "empty": "Nessun piano da visualizzare. Crea e salva prima un piano.",
+    "loading": "Caricamento…",
+    "whatInstead": "Cosa al posto?",
+    "sheetTitle": "Invece di {food}",
+    "roleSentence": "{food} {amount} è una porzione di {role} nella tua {meal}.",
+    "genericSentence": "Cosa puoi usare al posto di {food} {amount}?",
+    "close": "Chiudi",
+    "canUse": "Puoi usare",
+    "askProfessional": "Chiedi al tuo professionista",
+    "notAGoodMatch": "Non adatto",
+    "askProfessionalNote": "Non ancora approvato nel tuo piano. Chiedi al tuo professionista prima di usarlo.",
+    "canUseAmount": "Puoi usare {amount}",
+    "askAmount": "Quantità possibile da discutere: circa {amount}",
+    "noAmount": "Quantità da discutere con il tuo professionista",
+    "noCandidates": "Nessuna alternativa da mostrare qui. Chiedi al tuo professionista se ti serve uno scambio.",
+    "insufficient": "Non possiamo suggerire uno scambio sicuro qui. Chiedi al tuo professionista.",
+    "showNotMatch": "Mostra le opzioni non adatte",
+    "hideNotMatch": "Nascondi le opzioni non adatte",
+    "reasons": {
+      "approved_in_plan": "approvato nel tuo piano",
+      "similar_role": "ruolo simile al tuo alimento del piano",
+      "incomplete_nutrition": "informazioni nutrizionali incomplete",
+      "too_different": "troppo diverso per questa parte del piano"
     }
   }
 }

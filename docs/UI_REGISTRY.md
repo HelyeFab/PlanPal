@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 1.2
-Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement engine + approval modal)
+Version: 1.3
+Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement engine + approval modal + patient preview)
 
 ## Purpose
 
@@ -304,6 +304,24 @@ Components live in `apps/web/components/`.
   `SelectField` (with a "— none —" option) + a macro grid (5 `NumberField`s:
   calories/protein/carbs/fat/fibre) in a bordered `bg-surface` panel. Keeps the
   dense builder calm; macros are optional and never invented.
+### Patient preview patterns (MVP-10a, `components/patient/`, route `/[locale]/professional/patient-preview`)
+
+- **Patient plan view** (`patient-plan-view.tsx`) — calm, mobile-first, distinct
+  from the dense builder: `rounded-card` **meal cards** (bold name + faint
+  `timeLabel`), each slot a small uppercase `text-faint` label over **tappable food
+  rows** (`button`, `bg-surface-muted/50`, hover `border-brand/40 bg-brand-soft/40`)
+  showing food name + amount on the left and a `text-brand` "What instead? ⇄"
+  affordance on the right. A `bg-brand-soft text-brand` preview banner marks it as
+  the client view. Read-only — no editor primitives, no professional chrome.
+- **Patient replacement sheet** (`patient-replacement-sheet.tsx`) — a **bottom
+  sheet on mobile, centered modal on larger** (`fixed inset-0 bg-ink/40 flex
+  items-end sm:items-center`, inner `rounded-t-card sm:rounded-card max-w-md
+  max-h-[88dvh] overflow-y-auto`). Header = "Instead of {food}" + × close; a role/
+  meal sentence; then three colour-cued sections: **You can use** (mint border/bg) ·
+  **Ask your professional** (neutral, with a not-approved note) · **Not a good
+  match** (muted, **collapsed** behind a `▸/▾` toggle). Never renders engine
+  internals — only localised patient wording from `presentReplacements()`.
+
 - **Replacement tester + results** (`replacement-tester.tsx`, top of
   `/[locale]/professional/replacements`, MVP-8b) — a `SectionCard` with a
   `SelectField` (pick a saved-plan food) + a solid "Find replacements" pill

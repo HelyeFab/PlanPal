@@ -63,6 +63,13 @@ export default async function ProfessionalPage({ params }: PageProps) {
           </div>
           <div className="flex flex-wrap gap-2">
             <ActionPill
+              localeHref="/professional/patient-preview"
+              variant="ghost"
+              icon="◉"
+            >
+              {t("openPatientPreview")}
+            </ActionPill>
+            <ActionPill
               localeHref="/professional/replacements"
               variant="ghost"
               icon="⇄"

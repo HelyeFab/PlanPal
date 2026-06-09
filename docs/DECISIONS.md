@@ -856,3 +856,57 @@ focused endpoint is atomic and avoids clobbering. Negative: a second write path
   appear automatically; provenance distinguishes origin.
 - An override flow for `not_suitable` (if ever needed) is a separate, more
   explicit decision with stronger warnings.
+
+---
+
+## ADR-017: MVP-10a patient replacement experience prototype
+
+Date: 2026-06-09
+Status: Accepted
+
+### Context
+
+The core patient value is plan-aware replacement help ("I have 100g egg whites —
+what can I eat instead?"), not auth plumbing. We prototype that experience first,
+behind the existing professional session, before building patient identity
+(MVP-10b) and the real patient assistant (MVP-10c).
+
+### Decision
+
+- **Patient-experience-first sequencing:** MVP-10a (experience) → 10b (access) →
+  10c (assistant). 10a is a faithful, patient-styled render, not a real patient route.
+- **Route:** `/[locale]/professional/patient-preview`, **behind the existing
+  professional session** (server gate + client `RequireAuth`). No public/top-level
+  patient route yet — that would expose plan data with no gate.
+- **Data source:** the professional's own current saved plan + the MVP-8b engine.
+  **No new auth, schema, or API.**
+- **Three patient buckets** map from engine classifications, never showing internals:
+  `approved` → **You can use**; `nutritionally_similar` / `needs_professional_review`
+  → **Ask your professional**; `not_suitable` → **Not a good match** (collapsed).
+- **Wording differs from the professional UI:** approved = "You can use this because
+  it's approved in your plan"; candidate = "Not approved in your plan yet — ask your
+  professional before using it"; suggested amounts are framed as "possible amount to
+  discuss". A non-approved candidate is **never** presented as allowed.
+- **Pure, reusable `presentReplacements()`** (`lib/patient/present.ts`) maps engine
+  output → patient buckets with only `{ foodName, quantity?, unit?, reasonKey }` and
+  a small curated reason-key set (`approved_in_plan`, `similar_role`,
+  `incomplete_nutrition`, `too_different`). It emits **no** classification names,
+  confidence, reason/caution codes, tolerance, source, macros, provenance, or
+  `replacementGroupId`. Designed to run server-side in the real patient route later.
+- **Prototype boundary (documented):** because the route is professional-only, the
+  simplification happens client-side. The **real patient route (MVP-10c) must
+  minimise server-side** before anything reaches an actual patient.
+
+### Consequences
+
+Positive: the highest-value experience is validated with real plan + engine data,
+no identity work, no public exposure; the presentation layer carries into 10b/10c.
+Negative: engine internals reach the authorised professional's browser (stripped in
+the UI) — acceptable for a professional-only prototype, explicitly flagged.
+
+### Implications for future work
+
+- MVP-10b: `clientAccounts` mapping + patient accounts + provisioning + role resolution.
+- MVP-10c: a real patient route that calls `presentReplacements()` server-side, plus
+  a patient assistant and rate limiting. As the professional approves candidates
+  (MVP-9), they move from "Ask your professional" into "You can use" automatically.

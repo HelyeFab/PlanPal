@@ -2,7 +2,51 @@
 
 Last updated: 2026-06-09
 
-## Latest: MVP-9 — Professional review & approval of replacements (DONE; stop before MVP-10)
+## Latest: MVP-10a — Patient replacement experience prototype (DONE; stop before MVP-10b)
+
+Patient-experience-first (ADR-017). A faithful patient render of the replacement
+flow, **behind the existing professional session** — no patient auth/schema/API yet.
+Revised sequencing: **10a experience → 10b access/account mapping → 10c patient assistant.**
+
+- **Route:** `/[locale]/professional/patient-preview` (server gate + RequireAuth),
+  linked from the builder header ("Preview as client" / "Anteprima cliente", icon ◉).
+- **Data:** the professional's own saved plan (`GET /api/plan`) + MVP-8b engine
+  (`POST /api/replacements`). No new auth/schema/API.
+- **Pure `presentReplacements()`** (`lib/patient/present.ts`): engine result → 3
+  buckets exposing ONLY `{foodName,quantity?,unit?,reasonKey}`. Mapping: approved→
+  **You can use** (`approved_in_plan`); nutritionally_similar/needs_professional_review→
+  **Ask your professional** (`similar_role` | `incomplete_nutrition`); not_suitable→
+  **Not a good match** (`too_different`, collapsed). NO classification/confidence/
+  source/tolerance/macros/provenance/codes emitted. Reusable server-side in 10c.
+- **UI:** `patient-plan-view.tsx` (calm mobile meal cards, tappable food rows) +
+  `patient-replacement-sheet.tsx` (bottom-sheet on mobile / modal on desktop, 3
+  colour-cued sections, not-a-good-match collapsed). Patient wording never implies a
+  non-approved candidate is allowed; amounts framed "possible amount to discuss".
+- **Prototype boundary:** simplification is client-side (route is professional-only);
+  the REAL patient route (10c) must minimise server-side.
+
+New: `lib/patient/present.ts`; `components/patient/{patient-plan-view,patient-replacement-sheet}.tsx`;
+`app/[locale]/professional/patient-preview/page.tsx`. Modified: builder header link;
+messages (`patientPreview` namespace + `builder.openPatientPreview`). Docs: ADR-017,
+MVP_10A doc, UI_REGISTRY v1.3.
+
+**Checks:** typecheck/lint/build ✓. EN/IT parity 336=336. `present()` unit test ✓
+(real module, leak-free). **Browser E2E (real sign-in, non-destructive temp data) 11/11:**
+preview banner, meal card+time, tap Albumi → sheet (role sentence), You-can-use→Yogurt greco,
+Ask-professional→tacchino + incomplete-nutrition, Avocado collapsed→expand, **no engine
+internals/raw macros in DOM**. Guard 307. Outputs in `docs/reports/mvp-10a-patient-replacement-prototype/`.
+
+**Next: MVP-10b — Patient access / account mapping** (clientAccounts + patient Firebase
+accounts + provisioning + role resolution), then **MVP-10c — patient assistant** (calls
+present() server-side + rate limiter). Do NOT start until 10a is reviewed.
+
+Note: a session-cookie 5-day expiry vs persistent client auth caused a sign-in↔professional
+redirect loop; fixed (commit 79f6e7e) — sign-in re-establishes the cookie from a fresh ID
+token before redirecting, signs out if it fails.
+
+---
+
+## MVP-9 — Professional review & approval of replacements (DONE)
 
 The professional reviews a deterministic candidate (MVP-8b) and approves it into
 the plan (docs/MVP_9_PROFESSIONAL_REVIEW_APPROVAL.md, ADR-016). Professional-only;

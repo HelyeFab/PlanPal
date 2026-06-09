@@ -135,6 +135,7 @@
     "clear": "Clear all",
     "openAssistant": "Open assistant",
     "openReplacements": "Replacements",
+    "openPatientPreview": "Preview as client",
     "findReplacements": "Find replacements",
     "client": {
       "heading": "Client",
@@ -390,6 +391,36 @@
       "carbohydrates": "Carbs (g)",
       "fat": "Fat (g)",
       "fibre": "Fibre (g)"
+    }
+  },
+  "patientPreview": {
+    "title": "Your plan",
+    "subtitle": "A preview of what your client sees. Tap a food to find what they could eat instead.",
+    "previewBanner": "Client preview — this is how your client sees their plan.",
+    "backToBuilder": "Back to builder",
+    "empty": "No plan to preview yet. Build and save a plan first.",
+    "loading": "Loading…",
+    "whatInstead": "What instead?",
+    "sheetTitle": "Instead of {food}",
+    "roleSentence": "{food} {amount} is a {role} portion in your {meal}.",
+    "genericSentence": "What can you use instead of {food} {amount}?",
+    "close": "Close",
+    "canUse": "You can use",
+    "askProfessional": "Ask your professional",
+    "notAGoodMatch": "Not a good match",
+    "askProfessionalNote": "Not approved in your plan yet. Ask your professional before using it.",
+    "canUseAmount": "You can use {amount}",
+    "askAmount": "Possible amount to discuss: about {amount}",
+    "noAmount": "Amount to discuss with your professional",
+    "noCandidates": "No alternatives to show here. Ask your professional if you need a swap.",
+    "insufficient": "We can't suggest a safe swap here. Ask your professional.",
+    "showNotMatch": "Show options that aren't a good match",
+    "hideNotMatch": "Hide options that aren't a good match",
+    "reasons": {
+      "approved_in_plan": "approved in your plan",
+      "similar_role": "similar role to your planned food",
+      "incomplete_nutrition": "nutrition info is incomplete",
+      "too_different": "too different for this part of your plan"
     }
   }
 }
