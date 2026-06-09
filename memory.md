@@ -31,6 +31,17 @@ SECURITY_BOUNDARIES (boundary implemented), MVP_6, UI_REGISTRY v0.8, report fold
 **Checks:** typecheck ✓ · lint ✓ · build ✓ (APIs + professional dynamic, home SSG).
 Outputs in `docs/reports/mvp-6-cloud-persistence/`.
 
+**Browser E2E (2026-06-09): 18/18 PASS** — real headless Chromium (Puppeteer)
+against live `planpal-11ff7`, signed in as the provisioned professional:
+sign-in → save → reload-from-Firestore → remove meal → save → reload (gone) →
+remove slot → save → reload (gone) → sign-out (cookie cleared) → signed-out
+redirects (it/en). Stale-document deletion confirmed end-to-end. Test account
+kept (left with a clean example); the credentialed E2E script was deleted, not
+committed (Puppeteer installed `--no-save`). MVP-6 is verified — clear to start MVP-7.
+
+> Security: rotate the Firebase service-account key AND the test professional's
+> password before sharing this transcript externally (both appeared in it).
+
 **Setup needed to run:** enable Firestore (Native), add a service-account key to
 `apps/web/.env.local`, deploy `firestore.rules`. Until then the professional page
 shows the "not configured" notice and APIs return 503. End-to-end manual test
@@ -39,8 +50,11 @@ shows the "not configured" notice and APIs return 503. End-to-end manual test
 **Known limitations:** single current plan; explicit save only (no autosave);
 needs service account + deployed rules; localStorage buffer is per-browser.
 
-**Next recommended flow:** the AI assistant route (MVP_3) — server-side, reusing the
-verified session + Admin SDK to build plan context and answer grounded questions.
+**Next recommended flow: MVP-7 — Plan-grounded Assistant.** Server-side, reusing
+the verified session + Admin SDK to build context from the professional's SAVED
+plan. Hard requirement: answers ONLY from the saved plan, approved options, and
+safe rules — no diet generation, no pretending to be the nutritionist (ADR-003).
+A blueprint was drafted; awaiting confirmation of provider/model + a few choices.
 
 ---
 

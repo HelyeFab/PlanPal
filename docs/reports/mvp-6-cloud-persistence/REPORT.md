@@ -89,6 +89,30 @@ exercisable in the browser with a Console-provisioned professional account.
 While writing `.env.local`, the harness echoed the file (including the private
 key) into the session transcript. The key is gitignored and never committed, but
 if the transcript is shared the key should be rotated in the Firebase Console.
+The same applies to the test professional's password used in the browser E2E.
+
+## Browser E2E verification (2026-06-09) — 18/18 PASS
+
+A **real headless Chromium** (Puppeteer) drove the actual UI against live
+`planpal-11ff7`, signed in as the provisioned professional. All 18 assertions
+passed:
+
+- Sign in (`/it/sign-in`) → `POST /api/auth/session` 200 → redirected to `/it/professional`. ✓
+- Load sample (2 meals) → **Save** (`PUT /api/plan` 200). ✓
+- **Reload → loads from Firestore** (`GET /api/plan` 200, 2 meals). ✓
+- Remove one meal → Save → reload → **removed meal does NOT reappear** (2→1). ✓
+- Remove one food slot → Save → reload → **removed slot does NOT reappear**
+  (slots 4 → 2 after meal removal → 1); meal count unchanged. ✓
+- **Sign out → session cookie cleared.** ✓
+- Signed-out `/it/professional` → redirects to `/it/sign-in`. ✓
+- Signed-out `/en/professional` → `/en/sign-in`; `/en/sign-in` renders the form. ✓
+
+Stale-document deletion (the special concern) is confirmed end-to-end: removed
+meals/slots are gone from Firestore and stay gone across reloads. The test
+restored a clean 2-meal example before sign-out; the professional account was
+**kept** (not deleted), per request. The Puppeteer script (which embedded the
+test password) was removed and never committed; Puppeteer was installed with
+`--no-save` (no package.json/lock change).
 
 ## Known limitations
 
