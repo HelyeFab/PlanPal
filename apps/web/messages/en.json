@@ -134,6 +134,7 @@
     "loadExample": "Load example",
     "clear": "Clear all",
     "openAssistant": "Open assistant",
+    "openReplacements": "Replacement groups",
     "client": {
       "heading": "Client",
       "subtitle": "Who is this plan for?",
@@ -193,7 +194,18 @@
       "notesLabel": "Notes",
       "notesPlaceholder": "Optional",
       "defaultLabel": "Default",
-      "remove": "Remove option"
+      "remove": "Remove option",
+      "nutritionSection": "Nutrition & role",
+      "roleLabel": "Role",
+      "roleNone": "— none —",
+      "nutritionHint": "Optional. Macros power the replacement engine; they are never invented.",
+      "macros": {
+        "calories": "Calories",
+        "protein": "Protein (g)",
+        "carbohydrates": "Carbs (g)",
+        "fat": "Fat (g)",
+        "fibre": "Fibre (g)"
+      }
     },
     "preview": {
       "heading": "Client preview",
@@ -275,6 +287,53 @@
       "ok": "Answer based on the plan",
       "review": "Check with the professional",
       "refused": "Outside the plan"
+    }
+  },
+  "foodRoles": {
+    "lean_protein": "Lean protein",
+    "protein": "Protein",
+    "carbohydrate": "Carbohydrate",
+    "fat": "Fat",
+    "vegetable": "Vegetable",
+    "fruit": "Fruit",
+    "dairy": "Dairy",
+    "mixed": "Mixed",
+    "other": "Other"
+  },
+  "replacements": {
+    "title": "Replacement groups",
+    "subtitle": "Define interchangeable foods (with macros) the engine can suggest as candidates. Candidates always need your review before a client sees them.",
+    "backToBuilder": "Back to builder",
+    "addGroup": "Add group",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveError": "Couldn't save. Try again.",
+    "noGroups": "No replacement groups yet. Add one to define interchangeable foods.",
+    "untitledGroup": "Untitled group",
+    "saveGroup": "Save group",
+    "deleteGroup": "Delete group",
+    "groupName": "Group name",
+    "groupNamePlaceholder": "e.g. Breakfast lean protein",
+    "groupRole": "Role",
+    "tolerance": "Similarity tolerance",
+    "toleranceCalories": "Calories ±%",
+    "toleranceProtein": "Protein ±%",
+    "toleranceFat": "Fat ±g",
+    "toleranceHint": "Initial MVP defaults — not clinical rules. Used to judge nutritional similarity.",
+    "members": "Foods in this group",
+    "addMember": "Add food",
+    "noMembers": "No foods yet. Add interchangeable foods with their macros.",
+    "memberFood": "Food",
+    "memberFoodPlaceholder": "e.g. Low-fat ricotta",
+    "memberQuantity": "Qty",
+    "memberUnit": "Unit",
+    "removeMember": "Remove food",
+    "macros": {
+      "calories": "Calories",
+      "protein": "Protein (g)",
+      "carbohydrates": "Carbs (g)",
+      "fat": "Fat (g)",
+      "fibre": "Fibre (g)"
     }
   }
 }

@@ -1,13 +1,19 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import type { Dispatch } from "react";
 
 import { NumberField, SelectField, TextField, ToggleField } from "./fields";
 import { RemoveButton } from "./section-card";
 import { FOOD_UNITS } from "@/lib/professional/enums";
 import type { BuilderAction } from "@/lib/professional/reducer";
-import type { BuilderOption } from "@/lib/professional/types";
+import {
+  EMPTY_NUTRITION,
+  type BuilderNutrition,
+  type BuilderOption,
+} from "@/lib/professional/types";
+import { FOOD_ROLES, type FoodRole } from "@planpal/shared";
 
 type Props = {
   mealId: string;
@@ -16,15 +22,33 @@ type Props = {
   dispatch: Dispatch<BuilderAction>;
 };
 
-/** One approved option row: food name, quantity, unit, default toggle. */
+const MACROS: Array<{ key: keyof BuilderNutrition; labelKey: string }> = [
+  { key: "calories", labelKey: "calories" },
+  { key: "protein", labelKey: "protein" },
+  { key: "carbohydrates", labelKey: "carbohydrates" },
+  { key: "fat", labelKey: "fat" },
+  { key: "fibre", labelKey: "fibre" },
+];
+
+/** One approved option row: food name, quantity, unit, default toggle, and an
+ * optional collapsed "Nutrition & role" section (MVP-8a) for the replacement engine. */
 export function FoodOptionEditor({ mealId, slotId, option, dispatch }: Props) {
   const t = useTranslations("builder.options");
   const tu = useTranslations("foodUnits");
+  const tr = useTranslations("foodRoles");
+  const [showNutrition, setShowNutrition] = useState(false);
 
   const update = (patch: Partial<BuilderOption>) =>
     dispatch({ type: "updateOption", mealId, slotId, optionId: option.id, patch });
 
+  const updateMacro = (key: keyof BuilderNutrition, value: number | "") =>
+    update({ nutrition: { ...(option.nutrition ?? EMPTY_NUTRITION), [key]: value } });
+
   const unitOptions = FOOD_UNITS.map((unit) => ({ value: unit, label: tu(unit) }));
+  const roleOptions = [
+    { value: "", label: t("roleNone") },
+    ...FOOD_ROLES.map((role) => ({ value: role, label: tr(role) })),
+  ];
 
   return (
     <div className="rounded-2xl border border-line bg-surface-muted/60 p-3">
@@ -65,6 +89,42 @@ export function FoodOptionEditor({ mealId, slotId, option, dispatch }: Props) {
           />
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={() => setShowNutrition((v) => !v)}
+        aria-expanded={showNutrition}
+        className="mt-2 text-xs font-semibold text-brand hover:text-brand-strong"
+      >
+        {showNutrition ? "▾ " : "▸ "}
+        {t("nutritionSection")}
+      </button>
+
+      {showNutrition ? (
+        <div className="mt-2 rounded-2xl border border-line bg-surface p-3">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <SelectField
+              label={t("roleLabel")}
+              value={option.role ?? ""}
+              onChange={(role) =>
+                update({ role: role ? (role as FoodRole) : undefined })
+              }
+              options={roleOptions}
+            />
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {MACROS.map((macro) => (
+              <NumberField
+                key={macro.key}
+                label={t(`macros.${macro.labelKey}`)}
+                value={option.nutrition?.[macro.key] ?? ""}
+                onChange={(value) => updateMacro(macro.key, value)}
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-faint">{t("nutritionHint")}</p>
+        </div>
+      ) : null}
     </div>
   );
 }

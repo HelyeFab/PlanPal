@@ -61,13 +61,22 @@ export default async function ProfessionalPage({ params }: PageProps) {
               {t("subtitle")}
             </p>
           </div>
-          <ActionPill
-            localeHref="/professional/assistant"
-            variant="soft"
-            icon="✦"
-          >
-            {t("openAssistant")}
-          </ActionPill>
+          <div className="flex flex-wrap gap-2">
+            <ActionPill
+              localeHref="/professional/replacements"
+              variant="ghost"
+              icon="⇄"
+            >
+              {t("openReplacements")}
+            </ActionPill>
+            <ActionPill
+              localeHref="/professional/assistant"
+              variant="soft"
+              icon="✦"
+            >
+              {t("openAssistant")}
+            </ActionPill>
+          </div>
         </header>
         <ProfessionalPlanBuilder locale={locale} initialState={initialState} />
       </RequireAuth>

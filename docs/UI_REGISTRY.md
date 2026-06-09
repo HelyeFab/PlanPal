@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 0.9
-Status: Reference baseline + implemented patterns (plan builder + auth + cloud save + assistant)
+Version: 1.0
+Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement data)
 
 ## Purpose
 
@@ -296,6 +296,22 @@ Components live in `apps/web/components/`.
 - **AppShell `nav="minimal"`** — inner pages (e.g. the builder, sign-in) use the
   minimal header (logo links home + language switcher + `AccountMenu`, no section
   nav / CTA).
+
+### Replacement-data patterns (MVP-8a)
+
+- **Option "Nutrition & role"** (`food-option-editor.tsx`) — a collapsed section
+  toggled by a small text button (`▸/▾`, `text-brand`). When open: a role
+  `SelectField` (with a "— none —" option) + a macro grid (5 `NumberField`s:
+  calories/protein/carbs/fat/fibre) in a bordered `bg-surface` panel. Keeps the
+  dense builder calm; macros are optional and never invented.
+- **Replacement group manager** (`components/replacements/`, route
+  `/[locale]/professional/replacements`) — `ReplacementGroupManager` lists
+  `GroupEditorCard`s (each a `SectionCard`): name, role, a 3-up tolerance grid
+  (calories ±% / protein ±% / fat ±g), and member foods (each: food name + qty +
+  unit + macro grid). Per-group **Save** pill (cloud-backed, one group per save)
+  + round `RemoveButton` delete; a manager-level Saving/Saved/error status line.
+  Client-rendered after the initial load (same hydration-safe pattern as the
+  builder). Linked from the builder header (`⇄ Replacement groups`).
 
 ### Assistant patterns (`components/assistant/`, route `/[locale]/professional/assistant`)
 

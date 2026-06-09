@@ -692,3 +692,53 @@ professional-defined groups); more product surface (review/approval flow, MVP-9)
   `replacementGroupId?` fields later — documented, not implemented yet.
 - The MVP-7 assistant stays "approved options only" until MVP-8/9 land; its docs
   are annotated as "safe but incomplete".
+
+---
+
+## ADR-014: MVP-8a replacement data foundation — additive option fields + owned replacement-group collection
+
+Date: 2026-06-09
+Status: Accepted
+
+### Context
+
+MVP-8 (ADR-013) is delivered in two internal passes. **MVP-8a** is the data
+foundation; **MVP-8b** is the deterministic engine + results UI. 8a must give the
+engine something real to reason over without building the engine yet.
+
+### Decision
+
+- **`FoodOption` gains optional, additive, backward-compatible fields:**
+  `nutrition?: NutritionalProfile`, `role?: FoodRole`, `replacementGroupId?: string`.
+  Existing plans without them keep working; values are never invented.
+- **`FoodRole` is separate from `FoodCategory`** — category describes the slot;
+  role is the nutritional role used by the engine. A `categoryToDefaultRole`
+  helper maps where useful, but the concepts stay distinct.
+- **Replacement groups are a first-class owned collection:**
+  `nutritionists/{uid}/replacementGroups/{groupId}` (name, role, tolerance,
+  members[] with optional macros). They supply off-plan candidates (e.g. ricotta,
+  turkey) the engine can suggest — not possible from in-plan foods alone.
+- **Tolerance** has a global default (±20% calories, ±20% protein, ±5g fat),
+  overridable per group. These are **initial MVP defaults, not clinical rules**.
+- **Macros are entered manually** in MVP-8a (no food database). Options without
+  enough data fall back to `needs_professional_review` / `insufficientData` in
+  the engine (MVP-8b) — never invented.
+- **Engine remains deterministic (MVP-8b);** OpenAI is never in the
+  classification path. Approval into the plan is **MVP-9**, not now.
+- Group access reuses the MVP-6 boundary (session cookie + Admin SDK +
+  `request.auth.uid == nutritionistId` rules under `nutritionists/{uid}`).
+
+### Consequences
+
+Positive: the foundation is in place (types, persistence, macro/role authoring,
+group manager) with all data owned and validated server-side; 8b can be pure
+logic. Negative: macro entry is manual; the group manager + per-option nutrition
+add professional-side surface (kept minimal/collapsed).
+
+### Implications for future work
+
+- MVP-8b: deterministic engine (`POST /api/replacements`) + results UI +
+  "Find replacements" entry point, consuming these types.
+- MVP-9: approve a candidate → append as an approved `FoodOption` in the slot.
+- A food database integration is a later, separate option (`source:
+  "nutrition_database"` is reserved).

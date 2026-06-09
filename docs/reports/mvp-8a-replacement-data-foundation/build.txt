@@ -1,0 +1,46 @@
+
+> planpal@0.0.0 build
+> npm --workspace apps/web run build
+
+
+> @planpal/web@0.0.0 build
+> next build
+
+▲ Next.js 16.2.7 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.2s
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/17) ...
+  Generating static pages using 5 workers (4/17) 
+  Generating static pages using 5 workers (8/17) 
+  Generating static pages using 5 workers (12/17) 
+✓ Generating static pages using 5 workers (17/17) in 171ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /_not-found
+├ ● /[locale]
+│ ├ /it
+│ └ /en
+├ ƒ /[locale]/professional
+├ ƒ /[locale]/professional/assistant
+├ ƒ /[locale]/professional/replacements
+├ ƒ /[locale]/sign-in
+├ ƒ /api/assistant
+├ ƒ /api/auth/session
+├ ƒ /api/plan
+├ ƒ /api/replacement-groups
+└ ○ /manifest.webmanifest
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+exit: 0

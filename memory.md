@@ -2,7 +2,48 @@
 
 Last updated: 2026-06-09
 
-## Latest: Trajectory correction — nutritional replacement vision (ADR-013, docs-only)
+## Latest: MVP-8a — Replacement data foundation (DONE; stop before MVP-8b)
+
+First pass of MVP-8 (ADR-013/ADR-014). **Data foundation only — the deterministic
+engine + results UI are MVP-8b, NOT built yet.**
+
+- **Shared types:** `NutritionalProfile`, `FoodRole` (+`FOOD_ROLES`), and the
+  replacement types (`ReplacementClassification/Confidence/Tolerance`,
+  `ReplacementGroup(+Member)`, `FoodReplacement{Request,Candidate}`,
+  `ReplacementResult`, `DEFAULT_REPLACEMENT_TOLERANCE`, `categoryToDefaultRole`).
+- **FoodOption** gained optional additive fields: `nutrition?`, `role?`,
+  `replacementGroupId?` (builder draft + `firestore-mapping` map them; blanks omitted).
+- **Replacement groups:** owned collection `nutritionists/{uid}/replacementGroups`
+  + `/api/replacement-groups` (GET/PUT/DELETE, Node, session-verified, Admin SDK,
+  same-origin) + a minimal manager at `/[locale]/professional/replacements`
+  (server-gated). Tolerance default ±20% cal / ±20% protein / ±5g fat (overridable;
+  not clinical rules). Macros entered manually (no food DB).
+- **UI:** collapsed "Nutrition & role" section on each food option; group manager
+  (groups → members → macros). Builder header links: `⇄ Replacement groups` + `✦ Assistant`.
+- **Guardrails:** engine stays deterministic (8b); no OpenAI in classification;
+  approval into plan is MVP-9; nothing patient-facing.
+
+New files: `packages/shared/src/types/{nutrition,replacement}.ts`;
+`apps/web/lib/replacements/{groups-mapping,groups-client}.ts`;
+`app/api/replacement-groups/route.ts`; `app/[locale]/professional/replacements/page.tsx`;
+`components/replacements/{replacement-group-manager,group-editor-card}.tsx`.
+Modified: shared `meal-plan.ts`/`index.ts`; builder `types.ts`/`firestore-mapping.ts`;
+`food-option-editor.tsx`; professional page header; messages (`foodRoles`,
+`replacements`, option `macros`/nutrition, `builder.openReplacements`).
+
+**Checks:** typecheck ✓ · lint ✓ · build ✓ (new `/professional/replacements` +
+`/api/replacement-groups`). EN/IT parity 254=254. **Live-verified (isolated test UID,
+cleaned up):** group CRUD (create→read role/tolerance/member+macros→delete→gone) +
+option role/macros round-trip through `/api/plan`. Outputs in
+`docs/reports/mvp-8a-replacement-data-foundation/`.
+
+**Next: MVP-8b — deterministic replacement engine + results UI** (`POST /api/replacements`,
+classification algorithm, "Find replacements" entry point). Awaiting go-ahead per the
+staged plan (report after 8a before building 8b).
+
+---
+
+## Trajectory correction — nutritional replacement vision (ADR-013, docs-only)
 
 A product-direction correction (no code changed):
 

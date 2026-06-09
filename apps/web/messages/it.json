@@ -134,6 +134,7 @@
     "loadExample": "Carica esempio",
     "clear": "Svuota tutto",
     "openAssistant": "Apri l'assistente",
+    "openReplacements": "Gruppi di sostituzione",
     "client": {
       "heading": "Cliente",
       "subtitle": "Per chi è questo piano?",
@@ -193,7 +194,18 @@
       "notesLabel": "Note",
       "notesPlaceholder": "Facoltative",
       "defaultLabel": "Predefinita",
-      "remove": "Rimuovi opzione"
+      "remove": "Rimuovi opzione",
+      "nutritionSection": "Valori nutrizionali e ruolo",
+      "roleLabel": "Ruolo",
+      "roleNone": "— nessuno —",
+      "nutritionHint": "Facoltativo. I macro alimentano il motore di sostituzione; non vengono mai inventati.",
+      "macros": {
+        "calories": "Calorie",
+        "protein": "Proteine (g)",
+        "carbohydrates": "Carboidrati (g)",
+        "fat": "Grassi (g)",
+        "fibre": "Fibre (g)"
+      }
     },
     "preview": {
       "heading": "Anteprima cliente",
@@ -275,6 +287,53 @@
       "ok": "Risposta basata sul piano",
       "review": "Da verificare con il professionista",
       "refused": "Fuori dal piano"
+    }
+  },
+  "foodRoles": {
+    "lean_protein": "Proteine magre",
+    "protein": "Proteine",
+    "carbohydrate": "Carboidrati",
+    "fat": "Grassi",
+    "vegetable": "Verdura",
+    "fruit": "Frutta",
+    "dairy": "Latticini",
+    "mixed": "Misto",
+    "other": "Altro"
+  },
+  "replacements": {
+    "title": "Gruppi di sostituzione",
+    "subtitle": "Definisci alimenti intercambiabili (con i macro) che il motore può proporre come candidati. I candidati richiedono sempre la tua revisione prima che il cliente li veda.",
+    "backToBuilder": "Torna all'editor",
+    "addGroup": "Aggiungi gruppo",
+    "saving": "Salvataggio…",
+    "saved": "Salvato",
+    "saveError": "Salvataggio non riuscito. Riprova.",
+    "noGroups": "Ancora nessun gruppo di sostituzione. Aggiungine uno per definire alimenti intercambiabili.",
+    "untitledGroup": "Gruppo senza nome",
+    "saveGroup": "Salva gruppo",
+    "deleteGroup": "Elimina gruppo",
+    "groupName": "Nome del gruppo",
+    "groupNamePlaceholder": "es. Proteine magre per colazione",
+    "groupRole": "Ruolo",
+    "tolerance": "Tolleranza di similarità",
+    "toleranceCalories": "Calorie ±%",
+    "toleranceProtein": "Proteine ±%",
+    "toleranceFat": "Grassi ±g",
+    "toleranceHint": "Valori predefiniti iniziali — non regole cliniche. Usati per valutare la similarità nutrizionale.",
+    "members": "Alimenti del gruppo",
+    "addMember": "Aggiungi alimento",
+    "noMembers": "Ancora nessun alimento. Aggiungi alimenti intercambiabili con i loro macro.",
+    "memberFood": "Alimento",
+    "memberFoodPlaceholder": "es. Ricotta magra",
+    "memberQuantity": "Qtà",
+    "memberUnit": "Unità",
+    "removeMember": "Rimuovi alimento",
+    "macros": {
+      "calories": "Calorie",
+      "protein": "Proteine (g)",
+      "carbohydrates": "Carboidrati (g)",
+      "fat": "Grassi (g)",
+      "fibre": "Fibre (g)"
     }
   }
 }

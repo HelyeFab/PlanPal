@@ -39,3 +39,21 @@ export type {
 
 export type { SupportedLocale } from "./types/locale";
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "./types/locale";
+
+export type { NutritionalProfile, FoodRole } from "./types/nutrition";
+export { FOOD_ROLES } from "./types/nutrition";
+
+export type {
+  ReplacementClassification,
+  ReplacementConfidence,
+  ReplacementTolerance,
+  ReplacementGroupMember,
+  ReplacementGroup,
+  FoodReplacementRequest,
+  FoodReplacementCandidate,
+  ReplacementResult,
+} from "./types/replacement";
+export {
+  DEFAULT_REPLACEMENT_TOLERANCE,
+  categoryToDefaultRole,
+} from "./types/replacement";

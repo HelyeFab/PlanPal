@@ -27,6 +27,7 @@ nutritionists/{nutritionistId}
         slots/{slotId}
     questions/{questionId}
   rules/{ruleId}
+  replacementGroups/{groupId}      # MVP-8a
 ```
 
 This keeps all client data under the professional who owns it.
@@ -411,3 +412,53 @@ Firestore may request composite indexes later. Add them only when required by re
 Do not over-normalise.
 
 Keep reads simple, keep ownership obvious, and keep the assistant context easy to build.
+
+---
+
+## Subcollection: replacementGroups (MVP-8a)
+
+Path:
+
+```txt
+nutritionists/{nutritionistId}/replacementGroups/{groupId}
+```
+
+Example document:
+
+```json
+{
+  "id": "group_001",
+  "nutritionistId": "nutri_001",
+  "name": "Breakfast lean protein",
+  "role": "lean_protein",
+  "tolerance": { "caloriesPercent": 20, "proteinPercent": 20, "fatGrams": 5 },
+  "members": [
+    { "id": "m1", "foodName": "Low-fat ricotta", "quantity": 100, "unit": "g",
+      "nutrition": { "calories": 138, "protein": 11, "fat": 8 } }
+  ],
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
+
+A professional-defined set of interchangeable foods (with optional macros) used
+by the replacement engine (MVP-8b) to suggest off-plan candidates. Owned by the
+professional; covered by the existing `request.auth.uid == nutritionistId` rule.
+Read/written server-side via the Admin SDK (`/api/replacement-groups`).
+
+### Embedded option fields (MVP-8a)
+
+Each option inside a slot's `options[]` array may now also carry optional
+replacement metadata:
+
+```json
+{
+  "id": "option_001", "foodName": "Albume", "quantity": 150, "unit": "g",
+  "isDefault": true,
+  "role": "lean_protein",
+  "nutrition": { "protein": 17, "calories": 78 },
+  "replacementGroupId": "group_001"
+}
+```
+
+These fields are optional and additive; blank fields are omitted on write.

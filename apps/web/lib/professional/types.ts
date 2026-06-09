@@ -11,11 +11,29 @@
  */
 import type {
   FoodCategory,
+  FoodRole,
   FoodUnit,
   MealName,
   PlanStatus,
   SupportedLocale,
 } from "@planpal/shared";
+
+/** Editable macro fields; each is "" while empty/editing (MVP-8). */
+export type BuilderNutrition = {
+  calories: number | "";
+  protein: number | "";
+  carbohydrates: number | "";
+  fat: number | "";
+  fibre: number | "";
+};
+
+export const EMPTY_NUTRITION: BuilderNutrition = {
+  calories: "",
+  protein: "",
+  carbohydrates: "",
+  fat: "",
+  fibre: "",
+};
 
 /** One approved option inside a slot. `quantity` is "" only while empty/editing. */
 export type BuilderOption = {
@@ -25,6 +43,10 @@ export type BuilderOption = {
   unit: FoodUnit;
   notes: string;
   isDefault: boolean;
+  // Optional replacement-engine metadata (MVP-8a). Never invented.
+  role?: FoodRole;
+  nutrition?: BuilderNutrition;
+  replacementGroupId?: string;
 };
 
 export type BuilderSlot = {

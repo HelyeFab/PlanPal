@@ -8,11 +8,14 @@
  * persist arbitrary client JSON.
  */
 import { FOOD_CATEGORIES, FOOD_UNITS, MEAL_NAMES } from "./enums";
-import type { BuilderState } from "./types";
+import { EMPTY_NUTRITION, type BuilderNutrition, type BuilderState } from "./types";
+import { FOOD_ROLES } from "@planpal/shared";
 import type {
   FoodCategory,
+  FoodRole,
   FoodUnit,
   MealName,
+  NutritionalProfile,
   PlanLanguage,
   PlanStatus,
 } from "@planpal/shared";
@@ -22,6 +25,15 @@ const STATUSES = new Set<string>(["draft", "active"]);
 const MEALS = new Set<string>(MEAL_NAMES);
 const CATEGORIES = new Set<string>(FOOD_CATEGORIES);
 const UNITS = new Set<string>(FOOD_UNITS);
+const ROLES = new Set<string>(FOOD_ROLES);
+
+const MACRO_KEYS = [
+  "calories",
+  "protein",
+  "carbohydrates",
+  "fat",
+  "fibre",
+] as const;
 
 /** Quantity stored in Firestore: a number, or null when left blank. */
 type StoredOption = {
@@ -31,6 +43,10 @@ type StoredOption = {
   unit: FoodUnit;
   notes: string;
   isDefault: boolean;
+  // Optional replacement-engine metadata (MVP-8). Omitted when unset.
+  role?: FoodRole;
+  nutrition?: NutritionalProfile;
+  replacementGroupId?: string;
 };
 
 export type PlanTreeDocs = {
@@ -78,6 +94,39 @@ function isObject(v: unknown): v is Record<string, unknown> {
 }
 function str(v: unknown): string {
   return typeof v === "string" ? v : "";
+}
+function numOrBlank(v: unknown): number | "" {
+  return typeof v === "number" && Number.isFinite(v) ? v : "";
+}
+function validRole(v: unknown): FoodRole | undefined {
+  return typeof v === "string" && ROLES.has(v) ? (v as FoodRole) : undefined;
+}
+
+/** Parse incoming macros into the builder's editable shape, or undefined if all blank. */
+function parseNutrition(v: unknown): BuilderNutrition | undefined {
+  if (!isObject(v)) return undefined;
+  const n: BuilderNutrition = { ...EMPTY_NUTRITION };
+  for (const key of MACRO_KEYS) n[key] = numOrBlank(v[key]);
+  return MACRO_KEYS.some((k) => n[k] !== "") ? n : undefined;
+}
+
+/** BuilderNutrition → stored NutritionalProfile (omit blank fields), or undefined. */
+function nutritionToProfile(n?: BuilderNutrition): NutritionalProfile | undefined {
+  if (!n) return undefined;
+  const p: NutritionalProfile = {};
+  for (const key of MACRO_KEYS) {
+    const value = n[key];
+    if (value !== "") p[key] = value;
+  }
+  return Object.keys(p).length > 0 ? p : undefined;
+}
+
+/** Stored NutritionalProfile → BuilderNutrition (blank for missing), or undefined. */
+function profileToBuilderNutrition(v: unknown): BuilderNutrition | undefined {
+  if (!isObject(v)) return undefined;
+  const n: BuilderNutrition = { ...EMPTY_NUTRITION };
+  for (const key of MACRO_KEYS) n[key] = numOrBlank(v[key]);
+  return MACRO_KEYS.some((k) => n[k] !== "") ? n : undefined;
 }
 
 type ValidationResult =
@@ -157,6 +206,10 @@ export function validateBuilderState(input: unknown): ValidationResult {
         if (quantity === null) {
           return { ok: false, error: "Quantity must be a number or blank." };
         }
+        const role = validRole(rawOption.role);
+        const nutrition = parseNutrition(rawOption.nutrition);
+        const replacementGroupId =
+          str(rawOption.replacementGroupId).trim() || undefined;
         options.push({
           id: str(rawOption.id) || crypto.randomUUID(),
           foodName: str(rawOption.foodName),
@@ -164,6 +217,9 @@ export function validateBuilderState(input: unknown): ValidationResult {
           unit: unit as FoodUnit,
           notes: str(rawOption.notes),
           isDefault: rawOption.isDefault === true,
+          ...(role ? { role } : {}),
+          ...(nutrition ? { nutrition } : {}),
+          ...(replacementGroupId ? { replacementGroupId } : {}),
         });
       }
 
@@ -246,14 +302,23 @@ export function builderStateToDocs(
         required: slot.required,
         sortOrder: slotIndex,
         notes: slot.notes,
-        options: slot.options.map((option) => ({
-          id: option.id,
-          foodName: option.foodName,
-          quantity: option.quantity === "" ? null : option.quantity,
-          unit: option.unit,
-          notes: option.notes,
-          isDefault: option.isDefault,
-        })),
+        options: slot.options.map((option) => {
+          const stored: StoredOption = {
+            id: option.id,
+            foodName: option.foodName,
+            quantity: option.quantity === "" ? null : option.quantity,
+            unit: option.unit,
+            notes: option.notes,
+            isDefault: option.isDefault,
+          };
+          if (option.role) stored.role = option.role;
+          const nutrition = nutritionToProfile(option.nutrition);
+          if (nutrition) stored.nutrition = nutrition;
+          if (option.replacementGroupId) {
+            stored.replacementGroupId = option.replacementGroupId;
+          }
+          return stored;
+        }),
       })),
     })),
   };
@@ -300,17 +365,22 @@ export function docsToBuilderState(
         required: s.required === true,
         notes: str(s.notes),
         options: Array.isArray(s.options)
-          ? (s.options as Record<string, unknown>[]).map((o) => ({
-              id: str(o.id),
-              foodName: str(o.foodName),
-              quantity:
-                typeof o.quantity === "number" && Number.isFinite(o.quantity)
-                  ? o.quantity
-                  : "",
-              unit: (UNITS.has(str(o.unit)) ? str(o.unit) : "g") as FoodUnit,
-              notes: str(o.notes),
-              isDefault: o.isDefault === true,
-            }))
+          ? (s.options as Record<string, unknown>[]).map((o) => {
+              const role = validRole(o.role);
+              const nutrition = profileToBuilderNutrition(o.nutrition);
+              const replacementGroupId = str(o.replacementGroupId) || undefined;
+              return {
+                id: str(o.id),
+                foodName: str(o.foodName),
+                quantity: numOrBlank(o.quantity),
+                unit: (UNITS.has(str(o.unit)) ? str(o.unit) : "g") as FoodUnit,
+                notes: str(o.notes),
+                isDefault: o.isDefault === true,
+                ...(role ? { role } : {}),
+                ...(nutrition ? { nutrition } : {}),
+                ...(replacementGroupId ? { replacementGroupId } : {}),
+              };
+            })
           : [],
       })),
     })),

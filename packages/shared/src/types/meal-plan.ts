@@ -7,6 +7,7 @@
  */
 
 import type { SupportedLocale } from "./locale";
+import type { FoodRole, NutritionalProfile } from "./nutrition";
 
 /** Lifecycle of a plan. Only one plan should be `active` per patient. */
 export type PlanStatus = "draft" | "active" | "archived";
@@ -59,6 +60,14 @@ export type FoodOption = {
   unit: FoodUnit;
   notes?: string;
   isDefault?: boolean;
+  /**
+   * Optional replacement-engine metadata (MVP-8, ADR-013). Additive and
+   * backward-compatible. Without macros/role an option falls back to
+   * needs_professional_review in the engine; values are never invented.
+   */
+  nutrition?: NutritionalProfile;
+  role?: FoodRole;
+  replacementGroupId?: string;
 };
 
 /**

@@ -239,6 +239,53 @@ type NutritionFacts = {
 
 But in the first MVP, we should rely on professional-approved substitutions rather than inventing equivalence from macro databases.
 
+### MVP-8a additions (ADR-013 / ADR-014)
+
+`FoodOption` gained **optional, additive, backward-compatible** fields for the
+replacement engine. Existing options without them keep working; values are never
+invented.
+
+```ts
+type NutritionalProfile = {
+  calories?: number;
+  protein?: number;
+  carbohydrates?: number;
+  fat?: number;
+  fibre?: number;
+};
+
+type FoodRole =
+  | "lean_protein" | "protein" | "carbohydrate" | "fat"
+  | "vegetable" | "fruit" | "dairy" | "mixed" | "other";
+
+// FoodOption now also has (all optional):
+//   nutrition?: NutritionalProfile;   // macros for this option's quantity/unit
+//   role?: FoodRole;                  // nutritional role (distinct from FoodCategory)
+//   replacementGroupId?: string;      // optional explicit group link
+```
+
+`FoodRole` is **separate** from `FoodCategory`: category describes the slot;
+role describes the food's nutritional purpose for replacement logic. A
+`categoryToDefaultRole` helper maps a category to a default role.
+
+#### ReplacementGroup (new)
+
+A professional-defined set of interchangeable foods with a shared role + macro
+tolerance, used by the engine to suggest off-plan candidates.
+
+```ts
+type ReplacementTolerance = { caloriesPercent: number; proteinPercent: number; fatGrams: number };
+type ReplacementGroupMember = { id: string; foodName: string; quantity?: number; unit?: FoodUnit; nutrition?: NutritionalProfile };
+type ReplacementGroup = {
+  id: string; nutritionistId: string; name: string;
+  role: FoodRole; tolerance: ReplacementTolerance;
+  members: ReplacementGroupMember[]; createdAt: string; updatedAt: string;
+};
+```
+
+Default tolerance is ±20% calories, ±20% protein, ±5g fat — **initial MVP
+defaults, not clinical rules** — overridable per group.
+
 ---
 
 ## Substitution Logic
