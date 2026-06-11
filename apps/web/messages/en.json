@@ -422,5 +422,42 @@
       "incomplete_nutrition": "nutrition info is incomplete",
       "too_different": "too different for this part of your plan"
     }
+  },
+  "patientChat": {
+    "title": "Chat with PlanPal",
+    "subtitle": "Ask about your plan and what you can eat instead — a preview of the patient experience.",
+    "previewBanner": "Client preview — professional control. Not shown to patients in production.",
+    "backToBuilder": "Back to builder",
+    "modeLabel": "Mode",
+    "modeHint": "preview control",
+    "modes": { "strict": "Plan-safe", "guided": "Guided", "explore": "Explore" },
+    "planContext": "Today's plan",
+    "inputPlaceholder": "Ask about a food… e.g. \"What can I eat instead of Greek yogurt?\"",
+    "send": "Send",
+    "sending": "Thinking…",
+    "greeting": "Hi! Tell me a food in your plan you'd like to swap and I'll show what you can use.",
+    "error": "Something went wrong. Please try again.",
+    "noPlan": "There's no plan to chat about yet.",
+    "whatInsteadTemplate": "What can I eat instead of {food}?",
+    "prompts": {
+      "whatInstead": "What can I eat instead?",
+      "noThis": "I don't have this",
+      "sweet": "I want something sweet",
+      "quick": "I need something quick"
+    },
+    "canUse": "You can use",
+    "askProfessional": "Ask your professional",
+    "askProfessionalNote": "Not approved in your plan yet — check with your professional.",
+    "exploratory": "Ideas to discuss",
+    "ideaBadge": "Idea",
+    "exploratoryWarning": "Not approved in your plan yet",
+    "approxLabel": "approximate",
+    "notAGoodMatch": "Not a good match",
+    "reasons": {
+      "approved_in_plan": "approved in your plan",
+      "similar_role": "similar role to your planned food",
+      "incomplete_nutrition": "nutrition info is incomplete",
+      "too_different": "too different for this part of your plan"
+    }
   }
 }

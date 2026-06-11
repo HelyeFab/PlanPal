@@ -422,5 +422,42 @@
       "incomplete_nutrition": "informazioni nutrizionali incomplete",
       "too_different": "troppo diverso per questa parte del piano"
     }
+  },
+  "patientChat": {
+    "title": "Chatta con PlanPal",
+    "subtitle": "Chiedi del tuo piano e di cosa puoi mangiare al suo posto — un'anteprima dell'esperienza del cliente.",
+    "previewBanner": "Anteprima cliente — controllo professionale. Non mostrato ai pazienti in produzione.",
+    "backToBuilder": "Torna all'editor",
+    "modeLabel": "Modalità",
+    "modeHint": "controllo anteprima",
+    "modes": { "strict": "Solo piano", "guided": "Guidata", "explore": "Esplora" },
+    "planContext": "Il tuo piano",
+    "inputPlaceholder": "Chiedi di un alimento… es. \"Cosa posso mangiare al posto dello yogurt greco?\"",
+    "send": "Invia",
+    "sending": "Sto pensando…",
+    "greeting": "Ciao! Dimmi un alimento del tuo piano che vuoi sostituire e ti mostro cosa puoi usare.",
+    "error": "Qualcosa è andato storto. Riprova.",
+    "noPlan": "Non c'è ancora un piano di cui parlare.",
+    "whatInsteadTemplate": "Cosa posso mangiare al posto di {food}?",
+    "prompts": {
+      "whatInstead": "Cosa posso mangiare al suo posto?",
+      "noThis": "Non ho questo",
+      "sweet": "Voglio qualcosa di dolce",
+      "quick": "Mi serve qualcosa di veloce"
+    },
+    "canUse": "Puoi usare",
+    "askProfessional": "Chiedi al tuo professionista",
+    "askProfessionalNote": "Non ancora approvato nel tuo piano — verifica con il tuo professionista.",
+    "exploratory": "Idee da discutere",
+    "ideaBadge": "Idea",
+    "exploratoryWarning": "Non ancora approvato nel tuo piano",
+    "approxLabel": "approssimativo",
+    "notAGoodMatch": "Non adatto",
+    "reasons": {
+      "approved_in_plan": "approvato nel tuo piano",
+      "similar_role": "ruolo simile al tuo alimento del piano",
+      "incomplete_nutrition": "informazioni nutrizionali incomplete",
+      "too_different": "troppo diverso per questa parte del piano"
+    }
   }
 }

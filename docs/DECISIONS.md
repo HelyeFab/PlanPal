@@ -910,3 +910,68 @@ the UI) — acceptable for a professional-only prototype, explicitly flagged.
 - MVP-10c: a real patient route that calls `presentReplacements()` server-side, plus
   a patient assistant and rate limiting. As the professional approves candidates
   (MVP-9), they move from "Ask your professional" into "You can use" automatically.
+
+---
+
+## ADR-018: MVP-10a conversational patient assistant with safety modes
+
+Date: 2026-06-11
+Status: Accepted (supersedes the list-first patient preview from ADR-017 as the primary patient prototype)
+
+### Context
+
+The list-first patient preview (ADR-017) is safe but reads like a query result.
+The intended patient experience is a chat with an AI companion that can answer
+broad replacement questions — while never blurring approved plan options and
+exploratory ideas. We also want to prototype *how open vs. strict* the experience
+is, as a professional-facing product lever.
+
+### Decision
+
+- **Chat-first**, still professional-session-protected (`/[locale]/professional/
+  patient-chat-preview`). The deterministic engine stays the **only** authority on
+  what is allowed; OpenAI is the language layer.
+- **Three safety modes** (professional-preview control, not patient-controlled):
+  - **Plan-safe (strict):** engine `approved` only.
+  - **Guided (default):** `approved` + `ask_professional` + `not_a_good_match`. No AI ideas.
+  - **Explore:** Guided **plus** OpenAI-generated `exploratory_ideas` (capped ~5),
+    each clearly "not approved in your plan yet". Opt-in.
+- **Flow:** message → OpenAI **closed-set** target identification (validated ids;
+  cannot invent a target) → deterministic engine → **server-built** authoritative
+  buckets via `presentReplacements()` → OpenAI compose warm prose (+ exploratory in
+  Explore) → **grounding validation** → response. Two model calls per message.
+- **OpenAI may not** classify, decide approval, or write into the approved bucket.
+  Only `approved` foods may be described as usable; candidates are "ask your
+  professional"; exploratory are "ideas to discuss / not approved / approximate".
+- **Grounding validation:** the approved/ask/not buckets are server-built; a
+  sentence claiming a food is approved/usable must not name a non-approved food. On
+  any failure (or OpenAI error) → **deterministic Guided-style fallback**, exploratory
+  ideas dropped.
+- **Exploratory macros** shown as approximate ("~170 cal, ~11g protein"), never as
+  clinical fact. Exploratory ideas de-duplicated against approved/ask/not/original.
+- Security unchanged from the prototype boundary: professional session, same-origin,
+  uid from cookie, OpenAI server-side only, context minimised (no private note,
+  provenance, tolerances, or internal codes to the client), input + output caps.
+
+### Sales story (Explore / Plan-safe / Guided)
+
+- **Explore = Version A** — flexible AI exploration, clearly labelled.
+- **Plan-safe = Version B** — approved-only.
+- **Guided = Version C** — hybrid: approved first, suggestions require approval.
+
+The mode toggle lets a professional feel each in seconds — testing whether patients
+value breadth enough that professionals want to configure openness (later per-patient).
+
+### Consequences
+
+Positive: the real "patient magic" (broad, conversational, macro-aware) is
+prototyped with a structural safety guarantee and a professional-facing product
+lever. Negative: two OpenAI calls/message (latency/cost); cross-language synonym
+dedup of exploratory ideas is imperfect (still always labelled not-approved).
+
+### Implications / not yet
+
+Explore is professional-preview-only in 10a. Real patients (10c) default to
+Plan-safe/Guided, with Explore behind explicit professional enablement, plus the
+still-missing per-user rate limiter and server-side minimisation. The list preview
+(`/patient-preview`) remains as a plan-only view but is no longer the primary path.

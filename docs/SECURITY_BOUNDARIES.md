@@ -291,3 +291,26 @@ boundary and adds AI-specific rules:
 - The payload is validated/whitelisted server-side (enums, numbers); provenance
   `approvedAt` is server-stamped.
 - De-dups by normalised food name (no overwrite). No OpenAI, no new secret.
+
+---
+
+## Patient conversational assistant (MVP-10a — ADR-018)
+
+`POST /api/patient-chat` (still professional-preview-gated; real patient auth is later):
+
+- Node runtime; same-origin + verified professional session cookie; `uid` from the
+  cookie only; input length cap + `max_output_tokens`.
+- OpenAI server-side only (key never on the client). Two calls: closed-set target
+  identification + answer composition. The model **never** classifies or decides
+  approval; only the deterministic engine does.
+- The `approved` / `ask_professional` / `not_a_good_match` buckets are **server-built**
+  from `presentReplacements()`; the model cannot add to them. In Explore mode the model
+  may add `exploratory_ideas` only — a separate bucket, always "not approved", capped.
+- **Grounding validation**: a sentence asserting a food is approved/usable must not name
+  a non-approved food; on failure (or OpenAI error) → deterministic Guided-style fallback,
+  exploratory ideas dropped.
+- Context minimisation: only plan food names/labels (identification) and patient-safe
+  buckets (composition) are sent — never the private note, provenance, tolerances, macros,
+  or internal codes. None of these reach the client either.
+- **Still missing (required before real patients, 10c):** per-user rate limiter;
+  Explore must be off by default for patients (professional enablement only).

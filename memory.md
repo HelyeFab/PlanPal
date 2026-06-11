@@ -2,7 +2,45 @@
 
 Last updated: 2026-06-09
 
-## Latest: MVP-10a — Patient replacement experience prototype (DONE; stop before MVP-10b)
+## Latest: MVP-10a — Conversational patient assistant with safety modes (DONE; stop before patient auth)
+
+Chat-first patient prototype (ADR-018), **behind the professional session** — no patient
+auth yet. The **deterministic engine stays the only authority on what's allowed; OpenAI is
+the language layer.** Supersedes the list-first preview as the primary patient path.
+
+- **Route:** `/[locale]/professional/patient-chat-preview` + `POST /api/patient-chat`
+  (Node, same-origin, verified cookie, uid from cookie, OpenAI server-side, input cap).
+  Builder header "Preview as client" (◉) now points here.
+- **Flow:** message → OpenAI **closed-set** target identification (validated ids; can't
+  invent) → deterministic engine → server-built buckets (`presentReplacements()`) → OpenAI
+  compose warm prose (+ exploratory ideas in Explore) → **grounding validation** → reply.
+  Two model calls/message; reuses `OPENAI_MODEL` (gpt-5.4-mini); no streaming.
+- **Safety modes** (professional-preview toggle, NOT patient-controlled): **Plan-safe**=
+  approved only; **Guided** (default)=approved+ask_professional+not_a_good_match;
+  **Explore**=Guided + OpenAI `exploratory_ideas` (cap 5, always "not approved", approximate
+  macros). Sales story: Explore/Plan-safe/Guided ↔ Version A/B/C.
+- **Guarantees:** approved/ask/not buckets server-built (model can't add to approved); only
+  approved = "you can use"; exploratory = "ideas to discuss"; on validation/OpenAI failure →
+  deterministic Guided fallback (`chat-safety.ts`, bilingual), exploratory dropped.
+- **Files:** `lib/patient/{chat-types,chat-openai,chat-safety,chat-client}.ts`;
+  `app/api/patient-chat/route.ts`; `components/patient/{patient-chat,chat-answer}.tsx`;
+  `app/[locale]/professional/patient-chat-preview/page.tsx`; `patientChat` messages.
+  Reuses `present.ts` + the MVP-7 OpenAI Responses-API/zodTextFormat pattern.
+
+**Checks:** typecheck/lint/build ✓. EN/IT parity 369=369. **Live test (test UID, OpenAI) 14/14:**
+guided (approved=Albumi, ask=turkey+cottage, not=avocado, no explore); strict (approved only);
+explore (5 ideas, all exploratory:true, none in approved, approved still real foods only);
+out-of-scope+off-plan refused; no engine internals in any response. Guards 401/403/307.
+Outputs in `docs/reports/mvp-10a-conversational-replacement-assistant/`.
+Known limit: cross-language synonym dedup of exploratory ideas imperfect (still always "not approved").
+
+**Next: patient auth — MVP-10b (clientAccounts + patient accounts + provisioning + role
+resolution), then MVP-10c (real patient route: present()/chat server-side minimised, Explore
+off-by-default for patients, + rate limiter).** Do NOT start until 10a is reviewed.
+
+---
+
+## MVP-10a (list-first preview, ADR-017 — superseded as primary)
 
 Patient-experience-first (ADR-017). A faithful patient render of the replacement
 flow, **behind the existing professional session** — no patient auth/schema/API yet.

@@ -1,7 +1,7 @@
 # PlanPal UI Registry
 
-Version: 1.3
-Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement engine + approval modal + patient preview)
+Version: 1.4
+Status: Reference baseline + implemented patterns (builder + auth + cloud save + assistant + replacement engine + approval modal + patient preview + patient chat)
 
 ## Purpose
 
@@ -304,7 +304,23 @@ Components live in `apps/web/components/`.
   `SelectField` (with a "— none —" option) + a macro grid (5 `NumberField`s:
   calories/protein/carbs/fat/fibre) in a bordered `bg-surface` panel. Keeps the
   dense builder calm; macros are optional and never invented.
-### Patient preview patterns (MVP-10a, `components/patient/`, route `/[locale]/professional/patient-preview`)
+### Patient chat patterns (MVP-10a conversational, `components/patient/`, route `/[locale]/professional/patient-chat-preview`)
+
+- **Chat layout** (`patient-chat.tsx`) — chat-first, mobile-first: a **segmented mode
+  toggle** (`inline-flex rounded-pill border p-0.5`, active = `bg-brand text-white`)
+  labelled a "preview control"; a **collapsible "Today's plan"** context whose foods
+  are tappable pills that *send* "What can I eat instead of {food}?"; a message thread
+  (user = `self-end bg-brand text-white rounded-br-sm`, assistant = `self-start
+  bg-surface rounded-bl-sm`); suggested-prompt pills; a pill input + send. "Thinking…"
+  status while awaiting.
+- **Chat answer** (`chat-answer.tsx`) — an assistant turn: warm message then the
+  authoritative buckets as compact sections — **You can use** (mint), **Ask your
+  professional** (neutral + amber note), **Ideas to discuss** (dashed amber border +
+  "Idea" badge + "Not approved in your plan yet" + "approximate"), **Not a good match**
+  (faint inline) — plus a brand-coloured follow-up question. Only ever renders patient
+  wording; engine internals never reach it.
+
+### Patient preview patterns (MVP-10a list-first, `components/patient/`, route `/[locale]/professional/patient-preview`)
 
 - **Patient plan view** (`patient-plan-view.tsx`) — calm, mobile-first, distinct
   from the dense builder: `rounded-card` **meal cards** (bold name + faint

@@ -1,11 +1,38 @@
 # PlanPal MVP 10a — Patient Replacement Experience Prototype
 
-Version: 0.1
-Status: Implemented
+Version: 0.2
+Status: Implemented — **conversational + safety modes is now the primary prototype** (ADR-018); the list-first preview below (ADR-017) remains as a plan-only view.
 
 > The patient-facing replacement experience, prototyped **behind the existing
 > professional session** before patient identity (MVP-10b) and the real patient
-> assistant (MVP-10c). See ADR-017.
+> assistant (MVP-10c).
+
+## Primary: conversational assistant with safety modes (ADR-018)
+
+Chat-first at `/[locale]/professional/patient-chat-preview` (`POST /api/patient-chat`).
+The patient chats naturally; the **deterministic engine remains the only authority**
+on what is allowed, and OpenAI is the language layer.
+
+- **Flow:** message → OpenAI closed-set target identification (validated ids) →
+  deterministic engine → server-built buckets (`presentReplacements()`) → OpenAI
+  compose warm prose (+ exploratory ideas in Explore) → grounding validation → reply.
+- **Safety modes (professional-preview toggle):** **Plan-safe** = approved only;
+  **Guided** (default) = approved + ask_professional + not_a_good_match; **Explore**
+  = Guided + OpenAI `exploratory_ideas` (capped ~5, always "not approved in your plan
+  yet", approximate macros).
+- **Guarantees:** approved/ask/not buckets are server-built (the model can't add to
+  approved); only `approved` is "you can use"; exploratory is "ideas to discuss";
+  grounding validation → deterministic Guided fallback on any failure.
+- **Modules:** `lib/patient/{chat-types,chat-openai,chat-safety,chat-client}.ts`,
+  `app/api/patient-chat/route.ts`, `components/patient/{patient-chat,chat-answer}.tsx`.
+- See ADR-018 for the sales story (Explore/Plan-safe/Guided ↔ Version A/B/C).
+
+The remainder of this doc describes the earlier list-first preview (ADR-017), kept
+as a plan-only view.
+
+---
+
+## List-first preview (ADR-017 — secondary)
 
 ## Goal
 
