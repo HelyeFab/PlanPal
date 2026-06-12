@@ -7,12 +7,26 @@ import { ChatAnswer } from "./chat-answer";
 import { ActionPill } from "../action-pill";
 import { loadPlanFromCloud } from "@/lib/professional/cloud";
 import { sendPatientChat, type ChatResult } from "@/lib/patient/chat-client";
-import { SAFETY_MODES, type SafetyMode } from "@/lib/patient/chat-types";
+import {
+  SAFETY_MODES,
+  type ChatTurn,
+  type SafetyMode,
+} from "@/lib/patient/chat-types";
 import type { BuilderState } from "@/lib/professional/types";
 
 type Turn = { role: "user"; text: string } | { role: "assistant"; result: ChatResult };
 
 const PROMPT_KEYS = ["whatInstead", "noThis", "sweet", "quick"] as const;
+
+/** Extract the assistant text from a turn result (for short-term history). */
+function assistantText(r: ChatResult): string {
+  return r.kind === "answer" ||
+    r.kind === "clarify" ||
+    r.kind === "refuse" ||
+    r.kind === "general"
+    ? r.message
+    : "";
+}
 
 /** Chat-first patient prototype with safety modes (MVP-10a). Professional-preview
  * only — the mode toggle is a professional control, not a patient one. */
@@ -30,6 +44,9 @@ export function PatientChat() {
   const [mode, setMode] = useState<SafetyMode>("guided");
   const [sending, setSending] = useState(false);
   const [showPlan, setShowPlan] = useState(false);
+  const [lastTarget, setLastTarget] = useState<
+    { optionId: string; foodName: string } | undefined
+  >(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,11 +64,19 @@ export function PatientChat() {
   async function send(text: string) {
     const message = text.trim();
     if (!message || sending) return;
+    const history: ChatTurn[] = turns
+      .map((turn) =>
+        turn.role === "user"
+          ? { role: "user" as const, text: turn.text }
+          : { role: "assistant" as const, text: assistantText(turn.result) },
+      )
+      .filter((t) => t.text);
     setTurns((prev) => [...prev, { role: "user", text: message }]);
     setInput("");
     setSending(true);
-    const result = await sendPatientChat(message, mode);
+    const result = await sendPatientChat(message, mode, { history, lastTarget });
     setTurns((prev) => [...prev, { role: "assistant", result }]);
+    if (result.kind === "answer") setLastTarget(result.target);
     setSending(false);
   }
 

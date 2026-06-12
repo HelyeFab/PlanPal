@@ -25,6 +25,7 @@ import {
   DEFAULT_SAFETY_MODE,
   MAX_EXPLORATORY_IDEAS,
   SAFETY_MODES,
+  type ChatTurn,
   type PatientChatBuckets,
   type PatientChatResponse,
   type PatientReplacementCard,
@@ -49,6 +50,27 @@ function locate(plan: BuilderState, optionId: string) {
 
 const amt = (c: { quantity?: number | ""; unit?: string }) =>
   typeof c.quantity === "number" ? `${c.quantity} ${c.unit ?? ""}`.trim() : "";
+
+/** Short-term context (request-scoped, not persisted): recent turns. */
+function parseHistory(v: unknown): ChatTurn[] {
+  if (!Array.isArray(v)) return [];
+  const out: ChatTurn[] = [];
+  for (const item of v) {
+    if (!item || typeof item !== "object") continue;
+    const rec = item as Record<string, unknown>;
+    const text = typeof rec.text === "string" ? rec.text.trim() : "";
+    if (!text) continue;
+    out.push({ role: rec.role === "assistant" ? "assistant" : "user", text });
+  }
+  return out.slice(-6);
+}
+function parseLastTarget(v: unknown): { optionId: string; foodName: string } | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const rec = v as Record<string, unknown>;
+  const optionId = typeof rec.optionId === "string" ? rec.optionId : "";
+  if (!optionId) return undefined;
+  return { optionId, foodName: typeof rec.foodName === "string" ? rec.foodName : "" };
+}
 
 /**
  * Conversational patient replacement assistant with safety modes (MVP-10a, ADR-018).
@@ -85,6 +107,8 @@ export async function POST(request: Request) {
   const mode: SafetyMode = SAFETY_MODES.includes(body.mode as SafetyMode)
     ? (body.mode as SafetyMode)
     : DEFAULT_SAFETY_MODE;
+  const history = parseHistory(body.history);
+  const lastTarget = parseLastTarget(body.lastTarget);
 
   const plan = await readSavedPlan(uid);
   if (!plan || !plan.planId) {
@@ -107,7 +131,7 @@ export async function POST(request: Request) {
 
   let identify;
   try {
-    identify = await identifyTarget(closed, message, language);
+    identify = await identifyTarget(closed, message, language, history, lastTarget);
   } catch {
     return NextResponse.json({ error: "assistant_failed" }, { status: 502 });
   }
@@ -159,6 +183,7 @@ export async function POST(request: Request) {
       language,
       mode,
       message,
+      history,
       original: {
         foodName: option.foodName,
         amount: amt(option),
@@ -223,6 +248,7 @@ export async function POST(request: Request) {
       quantity: typeof option.quantity === "number" ? option.quantity : undefined,
       unit: option.unit,
     },
+    target: { optionId: option.id, foodName: option.foodName },
     buckets,
   } satisfies PatientChatResponse);
 }

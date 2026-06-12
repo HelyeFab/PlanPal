@@ -31,6 +31,15 @@ export type PatientChatBuckets = {
   notAGoodMatch: PatientReplacementCard[];
 };
 
+/** One prior turn, sent back to the server as short-term context (not persisted). */
+export type ChatTurn = { role: "user" | "assistant"; text: string };
+
+/** Request-scoped conversation context: recent turns + the last resolved target. */
+export type ChatContext = {
+  history: ChatTurn[];
+  lastTarget?: { optionId: string; foodName: string };
+};
+
 export type PatientChatResponse =
   | {
       kind: "answer";
@@ -38,6 +47,8 @@ export type PatientChatResponse =
       followUpQuestion?: string;
       safetyMode: SafetyMode;
       original: { foodName: string; quantity?: number; unit?: string };
+      /** The resolved plan food — echoed so the client can carry it into follow-ups. */
+      target: { optionId: string; foodName: string };
       buckets: PatientChatBuckets;
     }
   | { kind: "clarify"; message: string }

@@ -101,3 +101,30 @@ substitution, calorie-prescription changes, assistant history/memory, streaming.
 **Patient auth — MVP-10b** (clientAccounts + patient accounts + provisioning + role
 resolution), then **MVP-10c** (real patient route: present()/chat server-side minimised,
 Explore off-by-default for patients, + rate limiter). Stop and report before 10b.
+
+---
+
+## Addendum — MVP-10a.1: short-term conversational context
+
+**Problem found in review:** the chat was stateless. The assistant asked follow-ups
+("sweeter or savoury?") but the next message ("dammi una alternativa più dolce") arrived
+with no food reference, so identification went `ambiguous` → "which food do you mean?".
+The thread was display-only and never sent to the server.
+
+**Fix (request-scoped, no persistence/DB, cleared on reload):**
+- The "answer" response now echoes the resolved `target { optionId, foodName }`.
+- The client tracks `lastTarget` (from each answer) and builds a bounded `history`
+  (recent turns), sending both with each message.
+- The route forwards them to `identifyTarget` (resolves follow-ups to the same food)
+  and `composeAnswer` (honours stated preferences; in strict/guided it says taste can't
+  filter approved options instead of inventing).
+- The grounding validator was made precise: it now flags only a non-approved food named
+  in the ~40-char window immediately AFTER an approved-claim phrase (so "you can use Tofu,
+  and as an idea Skyr" is fine, but "you can use Skyr" fails). The old sentence-level check
+  wrongly forced valid Explore answers into the deterministic fallback.
+
+**Live-verified:** turn-1 "instead of chicken breast" → answer (target = Petto di pollo);
+turn-2 "give me a sweeter one" **with** context → resolves to the same food (answer, not
+clarify) and **without** context → clarify (proving context is the fix); Explore follow-up
+keeps its exploratory ideas; approved stays real-plan-foods only; no exploratory in approved.
+typecheck/lint pass.

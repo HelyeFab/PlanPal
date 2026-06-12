@@ -34,6 +34,17 @@ out-of-scope+off-plan refused; no engine internals in any response. Guards 401/4
 Outputs in `docs/reports/mvp-10a-conversational-replacement-assistant/`.
 Known limit: cross-language synonym dedup of exploratory ideas imperfect (still always "not approved").
 
+**MVP-10a.1 — conversational context (DONE):** the chat was stateless, so follow-ups
+("dammi una alternativa più dolce") lost the target food and asked "which food?". Fixed by
+sending **request-scoped short-term context** (recent turns + last resolved target) with each
+message — NO persistence/DB, cleared on reload. Client (`patient-chat.tsx`) tracks `lastTarget`
+(from each answer's new `target` field) + builds `history`; `chat-client`/route forward them to
+`identifyTarget` (resolves follow-ups) + `composeAnswer` (honours preferences). Also fixed the
+grounding validator to be precise (only flag a non-approved food *immediately* claimed usable,
+via a 40-char window after the claim phrase) — the old sentence-level check wrongly nuked valid
+Explore answers to the deterministic fallback. Live-verified: follow-up resolves to the same
+food (was clarify without context); Explore follow-up keeps ideas; approved stays real-foods-only.
+
 **Next: patient auth — MVP-10b (clientAccounts + patient accounts + provisioning + role
 resolution), then MVP-10c (real patient route: present()/chat server-side minimised, Explore
 off-by-default for patients, + rate limiter).** Do NOT start until 10a is reviewed.

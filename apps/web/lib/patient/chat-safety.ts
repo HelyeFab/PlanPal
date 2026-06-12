@@ -99,23 +99,28 @@ const APPROVED_CLAIMS: Record<SupportedLocale, string[]> = {
 };
 
 /**
- * Grounding guard: a sentence that claims a food is approved/usable must NOT name
- * a non-approved food (candidate or exploratory). Returns false → route falls back
- * to the deterministic message. Conservative + heuristic; the authoritative cards
- * are the real guarantee.
+ * Grounding guard: an approved/usable claim ("you can use …") must not be applied
+ * to a non-approved food. We check the short window immediately AFTER each claim
+ * phrase for a non-approved food name — so "you can use Tofu, and as an idea Skyr"
+ * is fine, but "you can use Skyr" (a non-approved idea) fails. Returns false →
+ * route falls back to the deterministic message. The authoritative cards are the
+ * real guarantee; this just keeps the prose honest.
  */
 export function validateGrounding(
   message: string,
   nonApprovedNames: string[],
   language: SupportedLocale,
 ): boolean {
-  const claims = APPROVED_CLAIMS[language];
+  const low = message.toLowerCase();
   const names = nonApprovedNames.map((n) => n.toLowerCase()).filter(Boolean);
-  const sentences = message.split(/(?<=[.!?\n])\s+/);
-  for (const sentence of sentences) {
-    const low = sentence.toLowerCase();
-    if (!claims.some((c) => low.includes(c))) continue;
-    if (names.some((n) => low.includes(n))) return false;
+  if (names.length === 0) return true;
+  for (const claim of APPROVED_CLAIMS[language]) {
+    let idx = low.indexOf(claim);
+    while (idx !== -1) {
+      const window = low.slice(idx + claim.length, idx + claim.length + 40);
+      if (names.some((n) => window.includes(n))) return false;
+      idx = low.indexOf(claim, idx + 1);
+    }
   }
   return true;
 }

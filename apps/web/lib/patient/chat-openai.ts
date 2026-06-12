@@ -5,10 +5,18 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 import { getServerEnv } from "@/lib/env";
-import type { SafetyMode } from "./chat-types";
+import type { ChatTurn, SafetyMode } from "./chat-types";
 import type { SupportedLocale } from "@planpal/shared";
 
 const LANGUAGE_NAME: Record<SupportedLocale, string> = { en: "English", it: "Italian" };
+
+/** A compact transcript of recent turns (bounded), for model context. */
+function transcript(history: ChatTurn[]): string {
+  return history
+    .slice(-6)
+    .map((t) => `${t.role === "user" ? "Patient" : "PlanPal"}: ${t.text.slice(0, 300)}`)
+    .join("\n");
+}
 
 // --- Call 1: closed-set target identification ------------------------------
 
@@ -35,23 +43,30 @@ Rules:
 - decision="ambiguous" + a short clarifyingQuestion when it could be several options.
 - decision="out_of_scope" + refusalReason when they ask to create a new diet (new_diet), for medical advice/diagnosis (medical), to ignore their plan (ignore_plan), for unsafe restriction/weight-loss (unsafe), or for something unrelated to their plan (unrelated).
 - decision="general" when it is a plan question but not a food replacement.
+- FOLLOW-UPS: you also receive the recent conversation and (if any) the food last discussed. If the new message is a follow-up that refers to the SAME food without naming it (e.g. "a sweeter one", "something else", "yes", "what about savoury?"), return decision="found" with that same optionId. Only use "ambiguous" if you genuinely cannot tell which food.
 Leave unused string fields empty (""), and refusalReason="none" unless out_of_scope. Write any text in the requested language.`;
 
 export async function identifyTarget(
   options: ClosedOption[],
   message: string,
   language: SupportedLocale,
+  history: ChatTurn[] = [],
+  lastTarget?: { optionId: string; foodName: string },
 ): Promise<IdentifyResult> {
   const { openai } = getServerEnv();
   const client = new OpenAI({ apiKey: openai.apiKey });
   const list = options
     .map((o) => `- [optionId: ${o.optionId}] ${o.foodName} — meal "${o.mealLabel}", slot "${o.slotLabel}"`)
     .join("\n");
+  const convo = history.length ? `\nRecent conversation:\n${transcript(history)}\n` : "";
+  const last = lastTarget
+    ? `\nFood last discussed: ${lastTarget.foodName} [optionId: ${lastTarget.optionId}]\n`
+    : "";
   const input = `Reply language: ${LANGUAGE_NAME[language]}.
 
 Plan foods (closed list — choose only from these):
 ${list || "(no foods in plan)"}
-
+${convo}${last}
 Patient message:
 """${message}"""`;
 
@@ -83,6 +98,7 @@ export type ComposeInput = {
   language: SupportedLocale;
   mode: SafetyMode;
   message: string;
+  history?: ChatTurn[];
   original: { foodName: string; amount: string; roleLabel?: string; mealLabel: string };
   approved: ComposeFood[];
   askProfessional: ComposeFood[];
@@ -104,6 +120,8 @@ SAFETY MODE:
 - guided: mention approved + ask_professional (you may briefly note the avoid ones). exploratoryIdeas MUST be [].
 - explore: mention approved + ask_professional, AND you MAY add up to 5 exploratoryIdeas — real foods close to the patient's target nutrition — as IDEAS TO DISCUSS, clearly NOT approved. For each give approxNote like "~170 cal, ~11g protein" (approximate) and a short why. NEVER present exploratory ideas as approved or usable.
 
+PREFERENCES & FOLLOW-UPS: the recent conversation is provided. If the patient expressed a preference (sweeter, savoury, dairy-free, quick), honour it when choosing exploratory ideas (explore mode only). In strict/guided modes the approved options for a slot are fixed and cannot be filtered by taste — if none matches the preference, say so kindly and (if appropriate) suggest discussing other ideas with their professional. Never invent an approved food to satisfy a preference.
+
 Write a short, warm "message" (2-5 sentences) and one "followUpQuestion" (e.g. sweet / savoury / quick / dairy-free). Respond ONLY in the requested language.`;
 
 export async function composeAnswer(input: ComposeInput): Promise<ComposeResult> {
@@ -111,13 +129,16 @@ export async function composeAnswer(input: ComposeInput): Promise<ComposeResult>
   const client = new OpenAI({ apiKey: openai.apiKey });
   const foods = (label: string, list: ComposeFood[]) =>
     `${label}:\n${list.length ? list.map((f) => `  - ${f.foodName} ${f.amount}`.trimEnd()).join("\n") : "  (none)"}`;
+  const convo = input.history?.length
+    ? `\nRecent conversation:\n${transcript(input.history)}\n`
+    : "";
   const userInput = `Reply language: ${LANGUAGE_NAME[input.language]}.
 Safety mode: ${input.mode}.
 
 Original food the patient wants to replace: ${input.original.foodName} ${input.original.amount}${
     input.original.roleLabel ? ` (role: ${input.original.roleLabel})` : ""
   }, in meal "${input.original.mealLabel}".
-
+${convo}
 Patient message:
 """${input.message}"""
 
